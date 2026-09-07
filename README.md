@@ -6,7 +6,26 @@ A project-scoped harness factory for Codex. It inspects a project, designs a sma
 
 This is an independent migration of [revfactory/harness](https://github.com/revfactory/harness), based on upstream commit [`cceac68`](https://github.com/revfactory/harness/commit/cceac68ea1d0ad198ef4b7b906cd238375836387). The original project's team-design workflow and six architecture patterns are adapted to Codex. Upstream Claude Code benchmarks do not establish performance for this migration.
 
-## Start in this checkout
+## Install as a plugin (recommended)
+
+Run these two commands in your terminal. You do not need to clone this repository or run the Python installer:
+
+```bash
+codex plugin marketplace add https://github.com/revfactory/codex-harness.git
+codex plugin add codex-harness@codex-harness
+```
+
+Open **your target project in a new Codex session**, then send:
+
+```text
+$harness Build a harness for this project. Use subagents in parallel for independent tasks.
+```
+
+The plugin provides the `harness` skill, references, and helper scripts. It can inspect your project and create suitable agents and skills when asked. To install the predefined five-agent team and project configuration, use the [project installer](#install-into-another-project-optional).
+
+The command syntax above was checked against Codex CLI **0.153.4**. After adding the marketplace, you can also use `/plugins` in the CLI to select **Codex Harness → Harness for Codex → Install**, then start a new session. See [quickstart](docs/quickstart.md#install-as-a-plugin-recommended) for desktop installation, a local-checkout option, and troubleshooting. [Official plugin guide](https://learn.chatgpt.com/docs/plugins).
+
+## Start in this checkout (for development)
 
 Clone the repository:
 
@@ -29,7 +48,7 @@ $harness 이 프로젝트에 맞는 하네스를 구성해줘. 독립 작업은 
 
 Project agents and the `harness` skill are already in this checkout. If newly generated agents are absent from the current session, start a new thread in the project. See [quickstart](docs/quickstart.md) for installation into another project and a live smoke test.
 
-## Install into another project
+## Install into another project (optional)
 
 Requires Python 3.11+; the scripts use only the standard library. Run from this checkout:
 
@@ -41,7 +60,7 @@ python3 scripts/validate.py --project /absolute/path/to/project
 
 The installer copies the canonical `harness` skill and five seed agents, and merges supported project configuration forms and the `AGENTS.md` pointer while preserving existing content. Review any reported conflicts. An inline `agents = { ... }` table that needs missing defaults may require expansion to `[agents]`; the installer reports this before writing files. It does not change personal Codex configuration. Open the target in a new trusted local Codex session after installation.
 
-The [Codex plugin manifest](.codex-plugin/plugin.json) packages the skill from the standard `skills/` directory. Plugin installation alone does **not** install `.codex/agents/`, `.codex/config.toml`, or the project pointer. Use the project installer when you want the complete starting team.
+The [Codex plugin manifest](.codex-plugin/plugin.json) packages the skill from the standard `skills/` directory. The [repository marketplace](.agents/plugins/marketplace.json) makes it installable as `codex-harness@codex-harness`. Plugin installation alone does **not** create project agent TOMLs, project configuration, or an `AGENTS.md` pointer; the project installer supplies those files.
 
 ## How the team works
 
@@ -72,7 +91,8 @@ skills/harness/                   Single physical skill source
   scripts/run.py                  Run state, refreshed context, agent lifecycle
   scripts/communication.py        Explicit collaboration event log
 .agents/skills/harness             Symlink → ../../skills/harness
-.codex-plugin/plugin.json         Optional skill package; skills = "./skills/"
+.codex-plugin/plugin.json         Plugin manifest; skills = "./skills/"
+.agents/plugins/marketplace.json  Installable repository marketplace
 scripts/install.py                Install into a target project
 scripts/validate.py               Repository validation entry point
 tests/                            Automated installer and validation checks
@@ -86,6 +106,8 @@ In this checkout, `.agents/skills/harness` links to `skills/harness` for project
 The six design patterns remain available: pipeline, fan-out/fan-in, expert pool, producer/reviewer, supervisor, and hierarchical decomposition. Hierarchical decomposition becomes a parent-managed dependency graph; it does not require recursive agent spawning.
 
 ## Run state and agent communication
+
+The shell examples below use paths created by the optional project installer. With only the plugin installed, ask `$harness` to use the helpers from its installed skill directory.
 
 The parent initializes a run from an actual project plan, records native agent IDs, and gives each child a refreshed packet with the project root, stable input fingerprints, decisions, skills, ownership, dependencies, and acceptance criteria. Related follow-ups can reuse the same agent; independent reviews can use fresh context when the runtime supports it. Models and the three-subagent concurrency setting stay inherited/configured as above.
 

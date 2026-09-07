@@ -6,7 +6,26 @@ Codex에서 프로젝트에 맞는 에이전트와 스킬을 구성하는 하네
 
 [revfactory/harness](https://github.com/revfactory/harness)의 커밋 [`cceac68`](https://github.com/revfactory/harness/commit/cceac68ea1d0ad198ef4b7b906cd238375836387)을 바탕으로 한 독립적인 Codex 마이그레이션입니다. 원본의 팀 설계 흐름과 6가지 아키텍처 패턴을 Codex의 네이티브 에이전트·스킬 구조로 옮겼습니다. 원본의 Claude Code 성능 측정치는 이 마이그레이션의 성능 근거로 사용하지 않습니다.
 
-## 현재 저장소에서 시작하기
+## 플러그인으로 설치하기 (권장)
+
+터미널에서 다음 두 명령을 실행하세요. 저장소를 직접 복제하거나 Python 설치 도구를 실행할 필요가 없습니다.
+
+```bash
+codex plugin marketplace add https://github.com/revfactory/codex-harness.git
+codex plugin add codex-harness@codex-harness
+```
+
+하네스를 적용할 **대상 프로젝트에서 새 Codex 세션**을 열고 다음을 입력하세요.
+
+```text
+$harness 이 프로젝트에 맞는 하네스를 구성해줘. 독립 작업은 서브에이전트로 병렬 처리해줘.
+```
+
+플러그인은 `harness` 스킬과 참조 문서, 보조 스크립트를 제공합니다. 요청하면 프로젝트를 분석하고 필요한 에이전트와 스킬을 생성합니다. 미리 정의된 기본 에이전트 5개와 프로젝트 설정을 설치하려면 아래의 [프로젝트 설치 도구](#다른-프로젝트에-설치하기-선택)를 사용하세요.
+
+위 명령 형식은 Codex CLI **0.153.4**에서 확인했습니다. 마켓플레이스를 추가한 뒤 CLI의 `/plugins`에서 **Codex Harness → Harness for Codex → Install**을 선택해 설치해도 됩니다. 설치 후에는 새 세션을 시작하세요. 데스크톱 앱 설치, 로컬 저장소 설치, 문제 해결은 [빠른 시작](docs/quickstart.md#install-as-a-plugin-recommended)을 참고하세요. [공식 플러그인 가이드](https://learn.chatgpt.com/docs/plugins).
+
+## 현재 저장소에서 시작하기 (개발용)
 
 저장소를 내려받습니다.
 
@@ -23,7 +42,7 @@ $harness 이 프로젝트에 맞는 하네스를 구성해줘. 독립 작업은 
 
 이 저장소에는 `harness` 스킬과 기본 에이전트 5개가 들어 있습니다. 실행 중 새로 만든 에이전트가 보이지 않으면 해당 프로젝트에서 새 스레드를 시작하세요.
 
-## 다른 프로젝트에 설치하기
+## 다른 프로젝트에 설치하기 (선택)
 
 Python 3.11 이상이 필요하며 별도 패키지 설치는 필요하지 않습니다. 이 저장소의 루트에서 실행하세요.
 
@@ -35,7 +54,7 @@ python3 scripts/validate.py --project /absolute/path/to/project
 
 설치 도구는 `harness` 스킬과 기본 에이전트를 복사하고, 기존 내용을 보존하면서 지원하는 형식의 프로젝트 설정과 `AGENTS.md` 포인터를 병합합니다. 충돌이 보고되면 해당 내용을 확인하세요. 기본값을 추가해야 하는 `agents = { ... }` 인라인 테이블은 `[agents]` 형식으로 펼쳐야 할 수 있으며, 이 경우 설치 도구는 파일을 쓰기 전에 진단을 반환합니다. 사용자 전역 Codex 설정은 변경하지 않습니다. 설치 후 대상 프로젝트를 신뢰하는 로컬 프로젝트로 열고 새 Codex 세션을 시작하세요.
 
-[Codex 플러그인 매니페스트](.codex-plugin/plugin.json)는 표준 `skills/` 디렉터리에서 스킬을 패키징합니다. 플러그인만 설치하면 프로젝트의 `.codex/agents/`, `.codex/config.toml`, `AGENTS.md` 포인터는 설치되지 않습니다. 기본 팀 전체를 사용하려면 위의 프로젝트 설치 도구를 사용하세요.
+[Codex 플러그인 매니페스트](.codex-plugin/plugin.json)는 표준 `skills/` 디렉터리에서 스킬을 패키징하며, [저장소 마켓플레이스](.agents/plugins/marketplace.json)를 통해 `codex-harness@codex-harness`로 설치할 수 있습니다. 플러그인 설치 자체는 프로젝트 에이전트 TOML, 프로젝트 설정, `AGENTS.md` 포인터를 생성하지 않습니다. 위의 프로젝트 설치 도구가 해당 파일을 설치합니다.
 
 ## 멀티 에이전트 동작 방식
 
@@ -66,7 +85,8 @@ skills/harness/                   하나의 실제 스킬 원본
   scripts/run.py                  실행 상태·컨텍스트 갱신·세션 수명
   scripts/communication.py        명시적인 협업 사건 기록
 .agents/skills/harness             심볼릭 링크 → ../../skills/harness
-.codex-plugin/plugin.json         선택적 스킬 패키지; skills = "./skills/"
+.codex-plugin/plugin.json         플러그인 매니페스트; skills = "./skills/"
+.agents/plugins/marketplace.json  저장소 플러그인 설치 목록
 scripts/install.py                프로젝트 설치 도구
 scripts/validate.py               저장소 검증 진입점
 tests/                            설치·검증 도구 자동 테스트
@@ -80,6 +100,8 @@ _workspace/communications/         메시지 JSONL 기록과 선택적 내보내
 파이프라인, 팬아웃/팬인, 전문가 풀, 생성/검토, 감독자, 계층적 분해의 6가지 패턴을 사용할 수 있습니다. 계층적 분해는 부모가 관리하는 의존성 그래프로 구현하며 재귀적인 에이전트 생성을 요구하지 않습니다.
 
 ## 실행 상태와 에이전트 간 소통
+
+아래 셸 예제는 선택적 프로젝트 설치 도구가 만드는 경로를 사용합니다. 플러그인만 설치했다면 `$harness`에 설치된 스킬 디렉터리의 보조 스크립트를 사용하도록 요청하세요.
 
 부모는 실제 프로젝트 계획으로 실행을 초기화하고 네이티브 에이전트 ID를 기록합니다. 각 자식에게 프로젝트 루트, 불변 입력 지문, 결정, 스킬, 소유권, 의존성, 완료 기준을 담은 최신 패킷을 전달합니다. 관련 후속 작업은 같은 에이전트를 재사용하면서 입력을 갱신하고, 독립 리뷰는 런타임이 지원할 때 새 컨텍스트로 수행합니다. 기존 모델 상속과 최대 3개 동시 서브에이전트 설정은 유지합니다.
 

@@ -4,9 +4,18 @@ Configuration contract checked against [OpenAI's native subagent documentation](
 
 ## Required surfaces
 
-- A Codex client that discovers project skills under `.agents/skills/` and native custom agents under `.codex/agents/`.
+- For plugin installation: a supported desktop app or Codex CLI. The official plugin guide currently excludes the IDE extension. [OpenAI plugin documentation](https://learn.chatgpt.com/docs/plugins).
+- For the project scaffold: a Codex client that discovers project skills under `.agents/skills/` and native custom agents under `.codex/agents/`.
 - A trusted local project with its project configuration enabled.
-- Python 3.11+ for this repository's standard-library-only installer and validation scripts.
+- Python 3.11+ when running the bundled helpers or project installer; plugin installation itself does not run these Python scripts.
+
+## Plugin installation contract
+
+The repository catalog is `.agents/plugins/marketplace.json`, with marketplace ID `codex-harness` and plugin ID `codex-harness`. Its local source path `./` resolves from the repository root to `.codex-plugin/plugin.json`, which packages `./skills/`. Marketplace paths are relative to the marketplace root. [OpenAI packaging reference](https://developers.openai.com/plugins/build/plugins#marketplace-metadata).
+
+On **2026-09-07**, the installed **Codex CLI 0.153.4** help confirmed `codex plugin marketplace add <SOURCE>`, `codex plugin add <PLUGIN@MARKETPLACE>`, and `codex plugin list --marketplace <NAME> --json`. This documents that CLI interface, not a minimum supported version or a cross-client installation test. Follow the [plugin quickstart](quickstart.md#install-as-a-plugin-recommended), then start a new session to load the installed skill.
+
+## Project configuration
 
 Each custom agent TOML provides `name`, `description`, and `developer_instructions`. These seed agents set `sandbox_mode` according to role and inherit model and reasoning effort from the parent. Newly created agents may require a new thread for discovery. [OpenAI subagent reference](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
@@ -43,7 +52,7 @@ The physical skill source is `skills/harness/`, and the native plugin manifest u
 
 The project installer reads through the discovery alias and copies regular files into the target's `.agents/skills/harness/`. The installed project is self-contained and does not depend on a symlink back to this checkout.
 
-The Codex plugin manifest packages the skill. It does not automatically deploy `.codex/agents/`, `.codex/config.toml`, or `AGENTS.md` into a project. Use `scripts/install.py` for the complete project scaffold.
+The Codex plugin manifest packages the skill. Installing it makes that workflow available; asking Harness to configure a project is a separate step that can create project files. Installation does not automatically deploy `.codex/agents/`, `.codex/config.toml`, or `AGENTS.md` into a project. Use `scripts/install.py` for the complete predefined scaffold. Manual `.agents/skills/harness/scripts/...` examples assume this project installation; plugin-only users should ask Harness to use the helpers from its installed skill directory.
 
 Sandbox declarations express the intended agent policy. Parent session runtime overrides and platform restrictions can affect the effective sandbox. Ownership instructions do not create per-file access controls. Check the active client's effective policy when verifying write boundaries. [OpenAI subagent reference](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
