@@ -27,8 +27,10 @@ Unicode and multiline payloads, correlated replies, corrupt-tail preservation,
 and separate exports. Live-test evidence checks reject changed checker code and
 unrelated delivery records; those offline tests do not simulate native agents.
 
-CI is configured for Ubuntu with Python 3.11 and 3.13. These CI jobs have not
-been executed on GitHub as part of this local migration.
+GitHub Actions passed on Ubuntu with **Python 3.11 and 3.13** for the first
+published migration commit `53660b1`: [CI run](https://github.com/revfactory/codex-harness/actions/runs/34080033451).
+Both jobs ran the automated suite, native artifact validation, and whitespace
+checks. The authenticated live Codex regression remains outside CI.
 
 ## Live write, blocker, communication, and resume regression
 

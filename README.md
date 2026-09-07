@@ -129,7 +129,7 @@ python3 scripts/live_smoke.py run --target _workspace/live-tests/NEW_ID
 
 The script exercises two native custom workers, a blocked task and failed completion check, an input correction followed by resume and reuse of the unchanged result, then two QA assertions. It allows up to 1,200 seconds and is excluded from default CI. Inspect its actual transcript, files, and check results; the command itself is not a recorded pass.
 
-These commands check repository artifacts and scripted behavior. **35 automated tests passed**, and a separate **Codex CLI 0.153.4 smoke test started two custom agents before waiting and collected both results**. See the [verification record](docs/verification.md) for evidence and limits, including the observed ephemeral-session issue. Effective write policies, other clients, and performance were not benchmarked. Repeat the [live smoke procedure](docs/quickstart.md#live-multi-agent-smoke-test) in your environment.
+**94 automated tests passed**. A separate **Codex CLI 0.153.4 run used two native custom workers and an independent QA agent** to verify file creation, peer communication records, a blocked completion, partial resume, unchanged-result reuse, and passing final tests. See the [verification record](docs/verification.md) for evidence and limits, including the earlier read-only smoke and observed ephemeral-session issue. Other clients, sandbox enforcement, and performance were not benchmarked. Repeat the live regression above in your environment.
 
 - [Quickstart](docs/quickstart.md)
 - [Multi-agent architecture and task packets](docs/multi-agent.md)
