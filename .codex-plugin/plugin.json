@@ -1,0 +1,32 @@
+{
+  "name": "codex-harness",
+  "version": "0.1.0",
+  "description": "A Codex meta-skill that designs domain-specific agent teams and reusable skills with bounded parallel orchestration.",
+  "author": {
+    "name": "Codex Harness contributors"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "codex",
+    "harness",
+    "multi-agent",
+    "orchestration",
+    "meta-skill"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Harness for Codex",
+    "shortDescription": "Design agents and skills for Codex projects.",
+    "longDescription": "Create and maintain project-specific Codex agents, skills and orchestration contracts. Includes six team patterns, explicit write ownership, dependency scheduling and incremental QA. Use the repository installer for the complete seed team.",
+    "developerName": "Codex Harness contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use $harness to build a Codex harness for this project.",
+      "하네스를 점검하고 독립 작업을 병렬화해줘."
+    ]
+  }
+}

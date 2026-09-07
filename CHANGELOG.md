@@ -1,8 +1,40 @@
 # Changelog
 
+## Unreleased — Codex run coordination improvements
+
+- Added v2 run state, refreshed task context with input fingerprints and decisions, native agent ID/lifecycle records, and selective resume invalidation.
+- Added completion checks for required result evidence, artifacts, and freshness, separate from native runtime observations.
+- Added explicit concurrent communication logs under `_workspace/communications/`, with correlated questions, answers, delivery outcomes, acknowledgments, and optional Markdown export.
+- Updated all role instructions to communicate proactively, refresh context on reuse, preserve ownership during stop/reassignment, and route read-only logging through the parent.
+- Unified product fixes under workers and verification under QA; expanded runnable helper guidance and the service migration example.
+
+## Unreleased — Codex migration
+
+Independent migration based on upstream commit [`cceac68ea1d0ad198ef4b7b906cd238375836387`](https://github.com/revfactory/harness/commit/cceac68ea1d0ad198ef4b7b906cd238375836387). No Codex release tag or live compatibility result is implied by this entry.
+
+### Added
+
+- Native project agent TOMLs for exploration, architecture, implementation, review, and QA, with role-specific boundaries and inherited model settings.
+- A canonical `skills/harness` workflow, exposed through the `.agents/skills/harness` project-discovery symlink, for parent-managed subagent orchestration, explicit ownership, dependency ordering, evidence handoffs, and bounded concurrency.
+- Project installation, agent generation, validation helpers, and automated tests using Python 3.11+ standard library tools.
+- Codex project configuration, an `AGENTS.md` entry point, and a Codex plugin manifest for skill distribution.
+- Codex quickstart, multi-agent protocol, runtime compatibility guidance, and migration mapping.
+
+### Changed
+
+- Claude Code runtime instructions and agent Markdown conventions are replaced by native Codex project artifacts.
+- Hierarchical team design uses parent-managed leaf tasks; recursive spawning is disabled by role instructions.
+- Installation preserves existing project content and keeps personal Codex configuration untouched.
+- Verification distinguishes static artifacts, scripted behavior, and observed live runtime execution.
+- English, Korean, and Japanese entry points and contribution templates now describe the Codex migration.
+
+## Historical upstream changelog
+
+The entries below are retained for attribution and provenance. They describe the original Claude Code project and its historical claims, processes, versions, and paths; they are not promises or compatibility results for this Codex migration.
+
 이 프로젝트는 [Semantic Versioning](https://semver.org/)을 따릅니다.
 
-## [Unreleased]
+## Upstream unreleased changes at the source commit
 
 ### Added
 - 신규 에이전트/스킬 생성 전 중복 검토 단계 (Phase 3-0, Phase 4-0)

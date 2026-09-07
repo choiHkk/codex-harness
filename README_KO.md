@@ -1,298 +1,137 @@
-<p align="center">
-  <img src="harness_banner.png" alt="Harness Banner" width="600">
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Version-1.2.0-brightgreen.svg" alt="Version">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
-  <img src="https://img.shields.io/badge/Patterns-6_Architectures-orange.svg" alt="6 Architecture Patterns">
-  <img src="https://img.shields.io/badge/Mode-Agent_Teams-green.svg" alt="Agent Teams">
-  <a href="https://github.com/revfactory/harness/stargazers"><img src="https://img.shields.io/github/stars/revfactory/harness?style=social" alt="GitHub Stars"></a>
-</p>
-
-<p align="center">
-  <a href="#카테고리--harness는-어디에-서-있나요"><img src="https://img.shields.io/badge/Layer-L3%20Meta--Factory-orange" alt="Layer"></a>
-  <a href="#카테고리--harness는-어디에-서-있나요"><img src="https://img.shields.io/badge/Sub--layer-Team--Architecture%20Factory-teal" alt="Sub-layer"></a>
-  <a href="#"><img src="https://img.shields.io/badge/README-EN%20%7C%20KO%20%7C%20JA-lightgrey" alt="i18n"></a>
-</p>
-
-# Harness — Claude Code를 위한 팀 아키텍처 팩토리
+# Harness for Codex
 
 [English](README.md) | **한국어** | [日本語](README_JA.md)
 
-> **Harness는 Claude Code용 팀 아키텍처 팩토리입니다.** **"하네스 구성해줘"** (한국어) · **"build a harness for this project"** (English) · **"ハーネスを構成して"** (日本語) 한 문장으로, 플러그인이 도메인 설명을 에이전트 팀과 그들이 쓸 스킬로 변환합니다 — 사전 정의된 6가지 팀 아키텍처 패턴 중 하나를 골라서요.
+Codex에서 프로젝트에 맞는 에이전트와 스킬을 구성하는 하네스입니다. 프로젝트를 분석하고 작업을 나눈 뒤, 부모 에이전트가 독립 작업을 서브에이전트에 병렬로 배정하고 결과 통합과 최종 검증을 담당합니다.
 
-## 개요
+[revfactory/harness](https://github.com/revfactory/harness)의 커밋 [`cceac68`](https://github.com/revfactory/harness/commit/cceac68ea1d0ad198ef4b7b906cd238375836387)을 바탕으로 한 독립적인 Codex 마이그레이션입니다. 원본의 팀 설계 흐름과 6가지 아키텍처 패턴을 Codex의 네이티브 에이전트·스킬 구조로 옮겼습니다. 원본의 Claude Code 성능 측정치는 이 마이그레이션의 성능 근거로 사용하지 않습니다.
 
-Harness는 Claude Code의 에이전트 팀 시스템을 활용하여 복잡한 작업을 전문 에이전트 팀으로 분해·조율하는 아키텍처 도구다. "하네스 구성해줘"라고 말하면, 사용자의 도메인에 맞는 에이전트 정의(`.claude/agents/`)와 스킬(`.claude/skills/`)을 자동 생성한다.
+## 현재 저장소에서 시작하기
 
-## 카테고리 — Harness는 어디에 서 있나요
+저장소를 내려받습니다.
 
-Harness는 Claude Code 생태계의 **L3 Meta-Factory** 층 — 다른 하네스들이 아니라 "다른 하네스들을 생성하는 층" — 에 자리합니다. 그 층 안에서 우리는 **Team-Architecture Factory** 서브 층을 선택합니다.
-
-| 층위 | 하는 일 | 공존하는 이웃 |
-|------|---------|---------------|
-| **L3 — Meta-Factory / Team-Architecture Factory** (우리) | 도메인 설명 → 에이전트 팀 + 스킬, 6가지 사전 정의된 팀 패턴 | — |
-| L3 — Meta-Factory / Runtime-Configuration Factory | 결정적(deterministic)·반복 가능한 런타임 설정 생성 | [coleam00/Archon](https://github.com/coleam00/Archon) |
-| L3 — Meta-Factory / Codex Runtime Port | 같은 컨셉, Codex 런타임 | [SaehwanPark/meta-harness](https://github.com/SaehwanPark/meta-harness) |
-| L2 — Cross-Harness Workflow | 여러 하네스 위에서 스킬·규칙·훅을 표준화 | [affaan-m/ECC](https://github.com/affaan-m/everything-claude-code) |
-
-> Archon은 결정적 런타임 설정을 뽑아냅니다. Harness는 팀 아키텍처(파이프라인·팬아웃/팬인·전문가 풀·생성-검증·감독자·계층적 위임)와 에이전트가 쓸 스킬을 뽑아냅니다. 같은 L3의 서로 다른 서브 층입니다. 런타임 결정성은 Archon, 팀 아키텍처는 Harness, 또는 둘을 조합해서 쓰세요.
-
-## 핵심 기능
-
-- **에이전트 팀 설계** — 파이프라인, 팬아웃/팬인, 전문가 풀, 생성-검증, 감독자, 계층적 위임 등 6가지 아키텍처 패턴 지원
-- **스킬 생성** — Progressive Disclosure 패턴으로 컨텍스트를 효율 관리하는 스킬 자동 생성
-- **오케스트레이션** — 에이전트 간 데이터 전달, 에러 핸들링, 팀 조율 프로토콜 포함
-- **검증 체계** — 트리거 검증, 드라이런 테스트, With-skill vs Without-skill 비교 테스트
-
-## 하네스 진화 메커니즘 (Harness Evolution Mechanism)
-
-하네스 진화 메커니즘은 "무엇이 먹혔고 무엇이 안 먹혔는가"의 델타를 팩토리로 되먹여, 다음 세대가 측정 가능하게 더 나아지도록 합니다. 실제 프로젝트에서 생성된 하네스가 사용될 때, `/harness:evolve` 스킬이 초기 아키텍처와 최종 출시 아키텍처 간 변화량을 포착해 팩토리로 되먹입니다. 다음번 같은 도메인에 대한 생성은 이 되먹임을 반영해 "출시 상태에 더 가까운 초안"에서 시작합니다.
-
-```
-초기 하네스 ──▶ 실 프로젝트 사용 ──▶ 출시 하네스
-                                          │
-                                          ▼ (/harness:evolve 로 델타 포착)
-                                    ┌───────────────┐
-                                    │   팩토리      │◀── 더 나은 다음 세대 초안
-                                    └───────────────┘
+```bash
+git clone https://github.com/revfactory/codex-harness.git
+cd codex-harness
 ```
 
-이것이 **하네스 진화 메커니즘 (Harness Evolution Mechanism; JA: ハーネス進化メカニズム)** 입니다.
+이 디렉터리를 신뢰하는 로컬 프로젝트로 열고 **새 Codex 세션**에서 다음을 입력하세요.
 
-## 워크플로우
-
-```
-Phase 1: 도메인 분석
-    ↓
-Phase 2: 팀 아키텍처 설계 (에이전트 팀 vs 서브 에이전트)
-    ↓
-Phase 3: 에이전트 정의 생성 (.claude/agents/)
-    ↓
-Phase 4: 스킬 생성 (.claude/skills/)
-    ↓
-Phase 5: 통합 및 오케스트레이션
-    ↓
-Phase 6: 검증 및 테스트
+```text
+$harness 이 프로젝트에 맞는 하네스를 구성해줘. 독립 작업은 서브에이전트로 병렬 처리해줘.
 ```
 
-## 설치
+이 저장소에는 `harness` 스킬과 기본 에이전트 5개가 들어 있습니다. 실행 중 새로 만든 에이전트가 보이지 않으면 해당 프로젝트에서 새 스레드를 시작하세요.
 
-### 마켓플레이스 등록 후 설치
+## 다른 프로젝트에 설치하기
 
-#### 마켓플레이스 추가
-```shell
-/plugin marketplace add revfactory/harness
+Python 3.11 이상이 필요하며 별도 패키지 설치는 필요하지 않습니다. 이 저장소의 루트에서 실행하세요.
+
+```bash
+python3 scripts/install.py --target /absolute/path/to/project --dry-run
+python3 scripts/install.py --target /absolute/path/to/project
+python3 scripts/validate.py --project /absolute/path/to/project
 ```
 
-#### 플러그인 설치
-```shell
-/plugin install harness-marketplace
+설치 도구는 `harness` 스킬과 기본 에이전트를 복사하고, 기존 내용을 보존하면서 지원하는 형식의 프로젝트 설정과 `AGENTS.md` 포인터를 병합합니다. 충돌이 보고되면 해당 내용을 확인하세요. 기본값을 추가해야 하는 `agents = { ... }` 인라인 테이블은 `[agents]` 형식으로 펼쳐야 할 수 있으며, 이 경우 설치 도구는 파일을 쓰기 전에 진단을 반환합니다. 사용자 전역 Codex 설정은 변경하지 않습니다. 설치 후 대상 프로젝트를 신뢰하는 로컬 프로젝트로 열고 새 Codex 세션을 시작하세요.
+
+[Codex 플러그인 매니페스트](.codex-plugin/plugin.json)는 표준 `skills/` 디렉터리에서 스킬을 패키징합니다. 플러그인만 설치하면 프로젝트의 `.codex/agents/`, `.codex/config.toml`, `AGENTS.md` 포인터는 설치되지 않습니다. 기본 팀 전체를 사용하려면 위의 프로젝트 설치 도구를 사용하세요.
+
+## 멀티 에이전트 동작 방식
+
+| 역할 | 담당 작업 | 설정된 샌드박스 |
+| --- | --- | --- |
+| 부모 세션 | 작업 배정, 공통 인터페이스, 결과 통합, 최종 검증 | 현재 세션 설정 |
+| `harness_explorer` | 관련 코드 조사, 파일·줄 번호를 포함한 근거 반환 | 읽기 전용 |
+| `harness_architect` | 작업 경계·의존성·완료 기준을 응답으로 설계 | 읽기 전용 |
+| `harness_worker` | 배정된 파일 범위에서 구현 | 작업 공간 쓰기 |
+| `harness_reviewer` | 수정 없이 결함과 회귀 위험 검토 | 읽기 전용 |
+| `harness_qa` | 테스트 실행, 배정된 테스트·검증 산출물 작성 | 작업 공간 쓰기 |
+
+각 작업에는 목표, 소유 파일, 의존성, 완료 기준을 명시합니다. 에이전트들이 같은 작업 공간을 공유하므로 공통 파일은 한 에이전트가 맡고, 다른 에이전트의 수정은 보존합니다. 독립 작업은 병렬로 실행하며 선행 결과가 필요한 작업은 기다립니다. 부모는 완료된 에이전트를 정리하거나 재사용하고, 가용 슬롯이 부족하면 남은 작업을 순차 처리합니다.
+
+프로젝트 설정은 네이티브 서브에이전트를 활성화하고 **동시 서브에이전트 스레드 수를 최대 3개**로 요청합니다. 부모 세션이 이를 조율하며 런타임 제한에 따라 실제 가용 수는 줄어들 수 있습니다. 모델과 추론 수준은 부모에게서 상속합니다. 자식 에이전트는 기본적으로 재귀 위임하지 않습니다. QA의 제품 코드 수정 금지는 쓰기 가능한 샌드박스 안의 지시사항 경계입니다. 자세한 프로토콜과 샌드박스 적용 범위는 [멀티 에이전트 설계](docs/multi-agent.md)를 참고하세요.
+
+## 디렉터리 구조
+
+```text
+AGENTS.md                         프로젝트 진입점
+.codex/config.toml                프로젝트 서브에이전트 설정
+.codex/agents/*.toml               기본 네이티브 에이전트 5개
+skills/harness/                   하나의 실제 스킬 원본
+  SKILL.md                        하네스 구성 워크플로우의 기준 파일
+  references/                     설계 패턴, 작업 전달, 예시, QA 가이드
+  scripts/create_agent.py         프로젝트 에이전트 생성 도구
+  scripts/validate.py             구조·실행 완료 검증
+  scripts/run.py                  실행 상태·컨텍스트 갱신·세션 수명
+  scripts/communication.py        명시적인 협업 사건 기록
+.agents/skills/harness             심볼릭 링크 → ../../skills/harness
+.codex-plugin/plugin.json         선택적 스킬 패키지; skills = "./skills/"
+scripts/install.py                프로젝트 설치 도구
+scripts/validate.py               저장소 검증 진입점
+tests/                            설치·검증 도구 자동 테스트
+docs/                             사용법, 아키텍처, 마이그레이션, 호환성
+.harness/runs/<run-id>/            실행 장부·입력 패킷·결과·에이전트 레지스트리
+_workspace/communications/         메시지 JSONL 기록과 선택적 내보내기
 ```
 
-### 글로벌 스킬로 직접 설치
+이 저장소의 `.agents/skills/harness`는 프로젝트 탐색을 위해 `skills/harness`를 가리킵니다. 플러그인과 프로젝트가 같은 원본을 사용하므로 스킬 복사본을 중복 관리하지 않습니다. 설치 도구는 이 링크를 통해 원본을 읽고 대상 프로젝트의 `.agents/skills/harness/`에 실제 파일을 복사합니다. 설치된 프로젝트에는 심볼릭 링크가 필요하지 않습니다.
 
-```shell
-# skills 디렉토리를 ~/.claude/skills/harness/에 복사
-cp -r skills/harness ~/.claude/skills/harness
+파이프라인, 팬아웃/팬인, 전문가 풀, 생성/검토, 감독자, 계층적 분해의 6가지 패턴을 사용할 수 있습니다. 계층적 분해는 부모가 관리하는 의존성 그래프로 구현하며 재귀적인 에이전트 생성을 요구하지 않습니다.
+
+## 실행 상태와 에이전트 간 소통
+
+부모는 실제 프로젝트 계획으로 실행을 초기화하고 네이티브 에이전트 ID를 기록합니다. 각 자식에게 프로젝트 루트, 불변 입력 지문, 결정, 스킬, 소유권, 의존성, 완료 기준을 담은 최신 패킷을 전달합니다. 관련 후속 작업은 같은 에이전트를 재사용하면서 입력을 갱신하고, 독립 리뷰는 런타임이 지원할 때 새 컨텍스트로 수행합니다. 기존 모델 상속과 최대 3개 동시 서브에이전트 설정은 유지합니다.
+
+```bash
+python3 .agents/skills/harness/scripts/run.py --project . init \
+  --plan-file /absolute/path/to/project-plan.json --run-id project-v1
+python3 .agents/skills/harness/scripts/run.py --project . ready --run project-v1
+python3 .agents/skills/harness/scripts/run.py --project . status --run project-v1
 ```
 
-## 플러그인 구조
+작업자는 영향을 주는 발견을 먼저 알리고, 동료에게 필요한 사실을 구체적으로 질문하며 신속히 답합니다. 선행 입력 준비와 인계도 전달하되 계약과 소유권은 부모가 확정합니다. 중요한 메시지는 `_workspace/communications/<run-id>.jsonl`에 명시적으로 기록합니다. 발신 기록 → 실제 네이티브 전송 → 전송 결과 기록 순서를 따르고 답변은 원래 이벤트 ID에 연결합니다. 읽기 전용 역할은 부모에게 기록·전달을 요청합니다. 로그 도구가 메시지를 보내거나 Codex 내부 대화를 자동 수집하지는 않습니다.
 
-```
-harness/
-├── .claude-plugin/
-│   └── plugin.json                 # 플러그인 매니페스트
-├── skills/
-│   └── harness/
-│       ├── SKILL.md                # 메인 스킬 정의 (6 Phase 워크플로우)
-│       └── references/
-│           ├── agent-design-patterns.md   # 6가지 아키텍처 패턴
-│           ├── orchestrator-template.md   # 팀/서브에이전트 오케스트레이터 템플릿
-│           ├── team-examples.md           # 실전 팀 구성 예시 5종
-│           ├── skill-writing-guide.md     # 스킬 작성 가이드
-│           ├── skill-testing-guide.md     # 테스트/평가 방법론
-│           └── qa-agent-guide.md          # QA 에이전트 통합 가이드
-└── README.md
+```bash
+python3 .agents/skills/harness/scripts/communication.py --project . --run project-v1 view \
+  --format markdown --output _workspace/communications/project-v1.md
+python3 .agents/skills/harness/scripts/validate.py --project . --run project-v1 --complete
 ```
 
-## 사용법
+작업 결과 완료와 실제 세션 유휴·종료를 구분합니다. 쓰기 소유권을 넘기기 전에는 이전 작성자의 중단·유휴를 확인합니다. 재개 시 입력·결과가 바뀐 작업과 영향을 받는 하위 작업을 다시 실행합니다. 기존 입력 파일 내용만 바뀌면 일반 `resume`을 사용합니다. 결정·소유권·완료 기준·목표가 바뀌거나 작업이 추가·제거되면 이전 실행 장부를 수정하지 않고 새 계획 템플릿을 전달합니다.
 
-Claude Code에서 다음과 같이 트리거한다:
-
-```
-하네스 구성해줘
-하네스 설계해줘
-이 프로젝트에 맞는 에이전트 팀 구축해줘
+```bash
+python3 .agents/skills/harness/scripts/run.py --project . resume \
+  --run project-v1 --new-run project-v2 \
+  --plan-file /absolute/path/to/revised-project-plan.json
 ```
 
-### 실행 모드
+계약이 바뀐 작업과 영향을 받는 하위 작업은 pending으로 돌리고, 변경 없는 승인 결과는 재사용합니다. 제품 수정은 워커가 맡고 QA는 수정된 동작을 검증합니다. 계획·결과 형식, 명령, 통신 연결 방법은 [실행 가이드](skills/harness/references/runtime-guide.md)에 있습니다.
 
-| 모드 | 설명 | 권장 상황 |
-|------|------|----------|
-| **에이전트 팀** (기본) | TeamCreate + SendMessage + TaskCreate | 2개 이상 에이전트, 협업 필요 |
-| **서브 에이전트** | Agent 도구 직접 호출 | 단발성 작업, 통신 불필요 |
+## 검증
 
-<p align="center">
-  <img src="harness_team.png" alt="Harness Agent Team" width="500">
-</p>
-
-### 아키텍처 패턴
-
-| 패턴 | 설명 |
-|------|------|
-| 파이프라인 | 순차 의존 작업 |
-| 팬아웃/팬인 | 병렬 독립 작업 |
-| 전문가 풀 | 상황별 선택 호출 |
-| 생성-검증 | 생성 후 품질 검수 |
-| 감독자 | 중앙 에이전트가 동적 분배 |
-| 계층적 위임 | 상위→하위 재귀적 위임 |
-
-## 산출물
-
-하네스가 생성하는 파일:
-
-```
-프로젝트/
-├── .claude/
-│   ├── agents/          # 에이전트 정의 파일
-│   │   ├── analyst.md
-│   │   ├── builder.md
-│   │   └── qa.md
-│   └── skills/          # 스킬 파일
-│       ├── analyze/
-│       │   └── SKILL.md
-│       └── build/
-│           ├── SKILL.md
-│           └── references/
+```bash
+python3 scripts/validate.py --project .
+python3 -m unittest discover -s tests -v
 ```
 
-## 사용 사례 — 이 프롬프트를 그대로 사용하세요
+실제 네이티브 실행을 확인하려면 인증된 Codex 클라이언트가 있는 환경에서 이 저장소 루트의 다음 명령을 실행하세요. 대상은 새 디렉터리로 지정합니다.
 
-Harness 설치 후 아래 프롬프트를 Claude Code에 복사해서 사용하세요:
-
-**딥 리서치**
-```
-리서치 하네스를 구성해줘. 어떤 주제든 여러 각도에서 조사할 수 있는 에이전트 팀이
-필요해 — 웹 검색, 학술 자료, 커뮤니티 반응 — 교차 검증 후 종합 보고서를 작성하는 팀.
+```bash
+python3 scripts/live_smoke.py run --target _workspace/live-tests/NEW_ID
 ```
 
-**웹사이트 제작**
-```
-풀스택 웹사이트 개발 하네스를 구성해줘. 디자인, 프론트엔드(React/Next.js),
-백엔드(API), QA 테스트를 와이어프레임부터 배포까지 파이프라인으로 조율하는 팀.
-```
+이 스크립트는 커스텀 워커 2개, 차단된 작업과 완료 검사 실패, 입력 수정 후 재개·변경 없는 결과 재사용, QA 단언 2개를 확인합니다. 제한 시간은 1,200초이며 기본 CI에는 포함되지 않습니다. 실제 대화 기록·파일·검사 결과를 확인해야 하며 명령 안내 자체가 통과 기록은 아닙니다.
 
-**웹툰 제작**
-```
-웹툰 에피소드 제작 하네스를 구성해줘. 스토리 작성, 캐릭터 디자인 프롬프트,
-패널 레이아웃 기획, 대사 편집 에이전트가 필요하고 서로의 작업물을
-스타일 일관성 관점에서 리뷰해야 해.
-```
+**자동 테스트 35개가 통과**했고, 별도로 **Codex CLI 0.153.4에서 커스텀 에이전트 2개를 대기 전에 병렬 시작하고 양쪽 결과를 수집**했습니다. [검증 기록](docs/verification.md)에 근거와 범위, ephemeral 세션에서 관찰한 문제를 남겼습니다. 다른 클라이언트, 쓰기 권한의 실제 적용, 성능 향상까지 검증한 것은 아닙니다. 사용 환경에서는 [실행 확인 절차](docs/quickstart.md#live-multi-agent-smoke-test)를 따라 확인할 수 있습니다.
 
-**유튜브 콘텐츠 기획**
-```
-유튜브 콘텐츠 제작 하네스를 구성해줘. 트렌드 조사, 대본 작성, 제목/태그 SEO 최적화,
-썸네일 컨셉 기획을 감독자 에이전트가 조율하는 팀.
-```
+- [빠른 시작](docs/quickstart.md)
+- [멀티 에이전트 아키텍처와 작업 패킷](docs/multi-agent.md)
+- [Claude Code → Codex 변경점](docs/migration.md)
+- [Codex 호환성](docs/compatibility.md)
+- [서비스 마이그레이션 시작 예제](examples/service-migration/README.md)
+- [기여 가이드](CONTRIBUTING.md)
 
-**코드 리뷰**
-```
-종합 코드 리뷰 하네스를 구성해줘. 아키텍처, 보안 취약점, 성능 병목, 코드 스타일을
-병렬로 감사하는 에이전트들이 결과를 하나의 리포트로 통합하는 팀.
-```
+## 라이선스와 원본
 
-**기술 문서 작성**
-```
-이 코드베이스에서 API 문서를 자동 생성하는 하네스를 구성해줘. 엔드포인트 분석,
-설명 작성, 사용 예제 생성, 완성도 리뷰를 파이프라인으로 처리하는 팀.
-```
-
-**데이터 파이프라인 설계**
-```
-데이터 파이프라인 설계 하네스를 구성해줘. 스키마 설계, ETL 로직, 데이터 검증 규칙,
-모니터링 설정을 계층적으로 위임하는 에이전트 팀.
-```
-
-**마케팅 캠페인**
-```
-마케팅 캠페인 제작 하네스를 구성해줘. 타겟 시장 조사, 광고 카피 작성,
-비주얼 컨셉 디자인, A/B 테스트 계획을 반복적 품질 리뷰와 함께 진행하는 팀.
-```
-
-## 공존 — Harness와 이웃 저장소들
-
-Harness는 Claude Code / 에이전트 프레임워크 생태계에서 혼자가 아닙니다. 아래 저장소들은 인접한 층위에 위치하며, 모두 "X는 ···, Harness는 ···" 병렬 구조로 기술되어 있어 용도에 맞게 선택하거나 조합할 수 있습니다.
-
-| 저장소 | 저장소의 포지션 | Harness와의 관계 |
-|--------|-----------------|------------------|
-| [coleam00/Archon](https://github.com/coleam00/Archon) | "harness builder" — 결정적·반복 가능한 런타임 설정 | **같은 L3, 이웃 서브 층.** Archon은 Runtime-Configuration Factory, Harness는 Team-Architecture Factory. 런타임 결정성은 Archon, 팀 아키텍처는 Harness, 또는 조합. |
-| [SaehwanPark/meta-harness](https://github.com/SaehwanPark/meta-harness) | 같은 컨셉의 Codex 포트 | **같은 L3, 다른 런타임.** Claude Code에서는 Harness, Codex에서는 meta-harness. |
-| [affaan-m/ECC](https://github.com/affaan-m/everything-claude-code) | "Agent harness performance & workflow layer" — 기존 하네스 위에 앉는 표준화 층 | **다른 층위.** ECC는 여러 하네스 위 표준화 층, Harness는 하네스를 생성하는 팩토리. 직렬 조합 가능. |
-| [wshobson/agents](https://github.com/wshobson/agents) | 서브 에이전트 / 스킬 카탈로그 (182 agents, 149 skills) | **팩토리 ↔ 부품 공급.** wshobson은 "쇼핑할 카탈로그", Harness는 "팀 설계". Harness가 만든 팀에 wshobson 항목을 부품으로 흡수. |
-| [LangGraph](https://langchain-ai.github.io/langgraph/) | 상태 그래프 오케스트레이션, LLM-agnostic | **다른 트랙.** 장기 실행·상태 복구가 핵심이면 LangGraph, Claude Code 네이티브의 빠른 팀 설계가 핵심이면 Harness. |
-
-## Harness로 만든 프로젝트
-
-### Harness 100
-
-**[revfactory/harness-100](https://github.com/revfactory/harness-100)** — 10개 도메인, 100개의 프로덕션 레디 에이전트 팀 하네스 (한영 200패키지). 각 하네스에 4-5명의 전문 에이전트, 오케스트레이터 스킬, 도메인 특화 스킬이 포함되어 있으며, 모두 이 플러그인으로 생성되었습니다. 콘텐츠 제작, 소프트웨어 개발, 데이터/AI, 비즈니스 전략, 교육, 법률, 헬스케어 등 1,808개 마크다운 파일.
-
-### 연구: Harness 적용 전후 A/B 테스트
-
-**[revfactory/claude-code-harness](https://github.com/revfactory/claude-code-harness)** — 15개 소프트웨어 엔지니어링 과제에 대한 통제 실험으로, 구조화된 사전 설정이 LLM 코드 에이전트 출력 품질에 미치는 영향을 측정했습니다.
-
-| 지표 | Harness 미적용 | Harness 적용 | 개선 |
-|------|:-:|:-:|:-:|
-| 평균 품질 점수 | 49.5 | 79.3 | **+60%** |
-| 승률 | — | — | **100%** (15/15) |
-| 출력 분산 | — | — | **-32%** |
-
-핵심 발견: 과제 난이도가 높을수록 개선 효과가 증대 (Basic +23.8, Advanced +29.6, Expert +36.2).
-
-**어디에서나 이 문장을 그대로 사용하세요:** 평균 품질 +60% (49.5 → 79.3), 15/15 승률, 출력 분산 −32% (n=15, 저자 자체 측정 A/B, 제3자 재현 실험 진행 중).
-
-> 논문 전문: *Hwang, M. (2026). Harness: Structured Pre-Configuration for Enhancing LLM Code Agent Output Quality.*
-
-## 요구사항
-
-- [에이전트 팀 기능 활성화](https://code.claude.com/docs/en/agent-teams): `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
-
-## FAQ
-
-<details>
-<summary><b>Q1. "+60%"는 과대 포장 아닌가요?</b></summary>
-
-**A.** +60%는 **저자 자체 A/B(n=15, 15개 과제, 자매 저장소 `claude-code-harness`에서 측정)** 결과입니다. 본 저장소는 이 수치를 인용할 때 언제나 "n=15, 저자 자체 측정, 제3자 재현 진행 중"을 같은 문장 안에 병기합니다. 조직 도입 시에는 2~4주 내부 파일럿으로 자체 수치를 측정할 것을 권장합니다.
-
-**Evidence:**
-- 저자 A/B: [revfactory/claude-code-harness](https://github.com/revfactory/claude-code-harness)
-- 논문: *Hwang, M. (2026). Harness: Structured Pre-Configuration for Enhancing LLM Code Agent Output Quality*
-</details>
-
-<details>
-<summary><b>Q2. 왜 "harness builder"가 아니라 "harness factory"인가요? Archon과 경쟁하나요?</b></summary>
-
-**A.** Archon은 결정적 런타임 설정을 생성하는 **Runtime-Configuration Factory** 성격, Harness는 에이전트 팀 아키텍처(팀 구조·메시지 프로토콜·리뷰 게이트)를 생성하는 **Team-Architecture Factory** 성격입니다. 둘은 **같은 L3 Meta-Factory 층의 이웃 서브 층**이며, 용도가 다릅니다. 결정적 런타임이 필요하면 Archon, 팀 아키텍처 6패턴 사전 정의가 필요하면 Harness. 조합 사용(아키텍처 설계 → 런타임 배포)도 가능합니다.
-
-**Evidence:**
-- Archon 자기 규정: [clawfit docs/reference-levels.md](https://github.com/hongsw/clawfit/blob/main/docs/reference-levels.md)
-- 서브 층 선언: 본 README **카테고리 — Harness는 어디에 서 있나요** 섹션
-- Archon 저장소: [github.com/coleam00/Archon](https://github.com/coleam00/Archon)
-</details>
-
-<details>
-<summary><b>Q3. "Claude Code 전용"이 너무 좁은 것 아닌가요? Gemini·Codex는?</b></summary>
-
-**A.** 현재 공식 런타임은 Claude Code 단일입니다. 같은 컨셉의 Codex 포트 [SaehwanPark/meta-harness](https://github.com/SaehwanPark/meta-harness)가 이미 공개되어 있어, 기존 Codex 팀은 그쪽에서 바로 시작할 수 있습니다. Harness는 "Claude Code 네이티브·깊게"를 택한 상태이며, 크로스 런타임 수요는 공존 저장소(meta-harness, harness-init, OpenRig)와의 연계 계획을 로드맵에 반영할 예정입니다.
-
-**Evidence:**
-- Codex 포트: [github.com/SaehwanPark/meta-harness](https://github.com/SaehwanPark/meta-harness)
-- 크로스 런타임 스캐폴더: [github.com/Gizele1/harness-init](https://github.com/Gizele1/harness-init)
-</details>
-
-## 라이선스
-
-Apache 2.0
+[Apache License 2.0](LICENSE)을 따릅니다. 원본 Harness는 [revfactory/harness](https://github.com/revfactory/harness) 기여자들의 작업입니다. 원본 라이선스를 유지하며, Codex 마이그레이션의 동작과 검증 상태는 원본 릴리스와 구분하여 기록합니다.

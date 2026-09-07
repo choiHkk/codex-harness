@@ -1,58 +1,17 @@
-<!--
-Thanks for sending a PR! Please fill in the sections below so reviewers can move fast.
+## Change
 
-See CONTRIBUTING.md for branch naming, commit conventions, and SLAs.
--->
+<!-- Describe the concrete problem and resulting behavior. Mention migration steps when needed. -->
 
-## Summary
+## Verification
 
-<!-- 2–4 sentences: what does this PR change, and why now? -->
+<!-- List commands actually run and outcomes. Separate static checks, scripted functional tests, and live Codex observations. Explain material checks that were not run. -->
 
-## Motivation
+- [ ] `python3 scripts/validate.py --project .`
+- [ ] `python3 -m unittest discover -s tests -v` (when relevant)
+- [ ] Live Codex smoke test (when relevant; record client/version and observed agent behavior)
 
-<!-- Link the issue, RFC, or research note that motivated this. If none, a 1-line rationale is fine. -->
+## Compatibility
 
-- Closes #
-- Related to #
+<!-- Note affected agent roles, file ownership boundaries, installer preservation behavior, and documentation changes. Do not claim runtime verification based only on parsing. -->
 
-## Scope of change
-
-<!-- Tick whichever boxes apply. Leave the rest unchecked. -->
-
-- [ ] Skill / meta-skill logic
-- [ ] Agent template(s)
-- [ ] Plugin manifest (`.claude-plugin/plugin.json`, `marketplace.json`)
-- [ ] Documentation (`README.md`, `README_KO.md`, `README_JA.md`, `docs/`)
-- [ ] `CHANGELOG.md`
-- [ ] CI / GitHub Actions
-- [ ] Tests
-- [ ] Other (describe):
-
-## Tests
-
-<!-- What did you run locally? Paste output or describe. -->
-
-- [ ] `npx markdownlint '**/*.md'` passes
-- [ ] Manual repro of the change works as expected
-- [ ] New unit / integration tests added (if applicable)
-- [ ] N/A — explain below
-
-## CHANGELOG update
-
-<!-- Every user-visible change must land in CHANGELOG.md under the Unreleased section. -->
-
-- [ ] Yes — added to `CHANGELOG.md`
-- [ ] No — this change is not user-visible (docs-only / internal refactor)
-
-## SemVer impact
-
-<!-- See CONTRIBUTING.md § Commit Message Convention. Choose one. -->
-
-- [ ] **Patch** — bug fix, no API change (`fix:`)
-- [ ] **Minor** — additive, backward-compatible (`feat:`)
-- [ ] **Major** — breaking change (`feat!:` or `BREAKING CHANGE:` in commit footer)
-- [ ] **None** — docs / chore / refactor / test
-
-## Additional notes
-
-<!-- Screenshots, migration notes, follow-ups, things you want reviewers to focus on. -->
+- [ ] User-visible changes documented in `CHANGELOG.md` and relevant usage guides

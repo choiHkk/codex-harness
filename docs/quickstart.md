@@ -1,117 +1,99 @@
-# Quickstart — 5 Minutes to Your First Harness
+# Quickstart
 
-> **Time budget: 5 minutes (strict).** If you are not at Step 5 within 5 minutes, stop and file an issue — that is a bug in this document, not a bug in you.
+Use a Codex client that supports project skills and native custom subagents. Python 3.11+ is required for the helper scripts; no third-party Python packages are needed. See [compatibility](compatibility.md) for the documented configuration contract.
 
-<!-- TODO: Loom embed — 60s screen recording showing Steps 1→5 end-to-end. Replace this comment with the `<iframe>` once recorded. -->
+## Use this checkout
 
-**What you will have at the end:** a working `.claude/agents/` directory with 3–5 domain-specialized agents, generated from a single-sentence prompt, ready to run on a sample task.
+1. Open the repository directory as a trusted local project in Codex.
+2. Start a new session so Codex can discover `.agents/skills/harness/SKILL.md` and `.codex/agents/*.toml`.
+3. Send the prompt below.
 
-**Prerequisites (check before starting):**
-- Claude Code **v2.x or later** (`claude --version` should return `2.x` or higher)
-- A shell that persists `export` across commands (bash, zsh, or fish)
-- Network access to `github.com` and `api.anthropic.com`
+The checkout keeps one physical skill under `skills/harness/`. The `.agents/skills/harness` symlink points to `../../skills/harness` for project discovery; the plugin reads the same source through its standard `skills/` package directory.
 
----
-
-## Step 1 — Add the marketplace (60 seconds)
-
-```bash
-claude plugin marketplace add revfactory/harness
+```text
+$harness 이 프로젝트에 맞는 하네스를 구성해줘. 독립 작업은 서브에이전트로 병렬 처리해줘.
 ```
 
-**What this does:** Registers the `harness` marketplace so Claude Code can discover plugins published by `revfactory`.
+Harness audits existing instructions, agents, and skills before adding anything. The parent chooses a proportionate team, assigns file ownership, generates the needed artifacts, and validates them. If generated roles are unavailable in the current session, start a new thread before testing those roles.
 
-**Expected output:** `Added marketplace: revfactory/harness`
+## Install into another project
 
----
-
-## Step 2 — Install the plugin and enable the Experimental flag (40 seconds)
+Run from this repository root, replacing the absolute target path:
 
 ```bash
-claude plugin install harness@harness
-export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+python3 scripts/install.py --target /absolute/path/to/project --dry-run
+python3 scripts/install.py --target /absolute/path/to/project
+python3 scripts/validate.py --project /absolute/path/to/project
 ```
 
-*(To persist the flag across shell sessions, append the `export` line to `~/.zshrc` or `~/.bashrc`.)*
+The dry run previews the installation. The installer preserves existing project content and reports conflicts; read its output before continuing. It installs regular skill files into the target's `.agents/skills/harness/`, five seed agents, project subagent settings, and an `AGENTS.md` pointer. The target does not need a symlink. It does not edit `~/.codex/` or `~/.agents/`.
 
-**What this does:** Installs the `harness` plugin from the `harness` marketplace, then enables Agent Teams — the Claude Code API harness uses to orchestrate multi-agent workflows. See [`docs/experimental-dependency.md`](./experimental-dependency.md) for why the flag is required.
+If an existing inline `agents = { ... }` table needs missing defaults, the installer may stop before any writes and ask for an expanded `[agents]` table. Preserve its existing values when expanding it, then rerun the dry run. See [configuration compatibility](compatibility.md) for an example.
 
-**Failure FAQ #1 — `AGENT_TEAMS not found` / teams don't instantiate**
-**Cause:** Claude Code version is older than v2.x (Agent Teams was introduced in v2.0).
-**Fix:** Run `claude --version`. If below 2.0, upgrade via `npm i -g @anthropic-ai/claude-code` (or your distribution's installer), then repeat Step 2.
+Open the target directory in a new trusted local Codex session and use the same prompt. Installing only the optional Codex plugin supplies the skill; it does not copy project agent TOMLs or config.
 
----
+## Add a focused agent
 
-## Step 3 — Generate a harness from one sentence (2 minutes)
+Usually, let `$harness` inspect the project and write suitable instructions. To create one manually, prepare an instruction file describing the narrow role, ownership boundary, expected evidence, and return format, then run from the installed project:
 
 ```bash
-claude "build a harness for a fintech risk-assessment team"
+python3 .agents/skills/harness/scripts/create_agent.py \
+  --target . \
+  --name api_reviewer \
+  --description "Review API changes for interface compatibility and error handling." \
+  --instructions-file /absolute/path/to/api-reviewer.md \
+  --sandbox-mode read-only
+python3 .agents/skills/harness/scripts/validate.py --project .
 ```
 
-**What this does:** Invokes the `/harness:harness` meta-skill, which analyzes your domain sentence and scaffolds a team of specialized agents + their skills into `.claude/agents/` and `.claude/skills/` in the current directory.
+Start a new thread if Codex does not discover the new role. Models and reasoning effort inherit from the parent unless you deliberately configure an override.
 
-**Try these alternate prompts** — any of them work:
-- `claude "하네스 구성해줘 — 핀테크 리스크 평가 팀"` (Korean also works)
-- `claude "build a harness for an e-commerce fraud-detection workflow"`
-- `claude "design an agent team for technical due diligence on open-source repos"`
+## Manage a run and its communication record
 
-**Expected output:** A streaming plan, then confirmation that 3–5 agent `.md` files and their skills were written.
-
-**Failure FAQ #2 — The Korean prompt returns nothing / the English one succeeds but Korean doesn't**
-**Cause:** Locale or tokenizer misrouting; harness's orchestrator matches on Korean trigger words ("하네스 구성"), which are built into the skill definition.
-**Fix:** If Korean fails, re-run with the English prompt above — the underlying skill is identical. If both fail, jump to Failure FAQ #3.
-
----
-
-## Step 4 — Verify the generated files (30 seconds)
+After installing, ask `$harness` to inspect the actual project and prepare a plan with immutable inputs, accepted decisions, skill paths, dependencies, ownership, and acceptance criteria. Initialize and inspect it from the target project:
 
 ```bash
-ls -la .claude/agents/
-ls -la .claude/skills/
+python3 .agents/skills/harness/scripts/run.py --project . init \
+  --plan-file /absolute/path/to/project-plan.json --run-id project-v1
+python3 .agents/skills/harness/scripts/run.py --project . ready --run project-v1
+python3 .agents/skills/harness/scripts/run.py --project . status --run project-v1
 ```
 
-**What this does:** Confirms the meta-skill wrote files to the expected locations.
-
-**Expected output:** 3–5 files per directory, with names reflecting your domain (e.g., `risk-analyst.md`, `compliance-reviewer.md`, `portfolio-monitor.md` for the fintech example).
-
-**Failure FAQ #3 — "Nothing was generated" / directories are empty**
-**Cause:** The plugin is not actually installed or is not active in the current project.
-**Fix:** Run `claude plugin list`. If `harness@harness` is absent, repeat Step 2. If present but inactive, run `claude plugin enable harness@harness`, then repeat Step 3.
-
----
-
-## Step 5 — Run a sample task against the new team (90 seconds)
-
-Copy a realistic Jira-ticket-style prompt and hand it to your fresh team:
+The parent first creates a native agent with a standby-only instruction, uses its real ID for `start`, then sends the refreshed packet through the actual follow-up tool. It registers actual results with `result`, and separately records confirmed session idleness or termination with `agent`. Important questions, answers, findings, and handoffs are explicitly recorded under `_workspace/communications/`; native delivery remains a separate tool call. Read-only roles ask the parent to log and route messages.
 
 ```bash
-claude "Ticket FIN-427: A new corporate customer (mid-cap manufacturer, \$80M revenue, South Korea) has applied for a \$5M working-capital line. Produce a risk assessment covering (1) credit-history red flags, (2) sector concentration vs. our existing book, (3) regulatory exposure (KFTC, FSC). Output: a 1-page memo with a go/no-go recommendation."
+python3 .agents/skills/harness/scripts/communication.py --project . --run project-v1 view \
+  --format markdown --output _workspace/communications/project-v1.md
+python3 .agents/skills/harness/scripts/validate.py --project . --run project-v1 --complete
 ```
 
-**What this does:** Claude Code detects the new agents in `.claude/agents/`, routes the task through the team patterns harness generated (typically Producer-Reviewer or Expert-Pool for risk work), and returns a structured memo.
+A later input change can start a new run through `run.py resume --run project-v1 --new-run project-v2`; affected results and dependents are invalidated and packets refreshed. Follow the [runtime guide](../skills/harness/references/runtime-guide.md) for the complete plan/result contracts, message correlation, and actual lifecycle order. These helpers do not spawn agents, send native messages, or stop an active writer.
 
-**Failure FAQ #4 — "The team doesn't execute / only one agent responds"**
-**Cause:** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` was set in the shell that ran Step 3 but not in the shell running Step 5 (happens when opening a new terminal).
-**Fix:** Re-export in the current shell: `export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, then re-run Step 5. To make permanent, add the line to your shell rc file.
+## Live multi-agent smoke test
 
-**Failure FAQ #5 — "Too many API calls / cost anxiety"**
-**Cause:** Multi-agent teams can fan out to 5+ parallel Claude calls per task. A single complex ticket can consume 50K–200K tokens.
-**Fix:** Limit to a single task per run (don't chain `&&` multiple harness invocations), and use the `--max-turns` flag if your Claude Code version supports it. For production, gate harness invocations behind a cost-aware wrapper — see `docs/cost-controls.md` *(forthcoming)*.
+Static validation cannot establish runtime discovery or parallel execution. In a new trusted local Codex session, ask:
 
----
+```text
+Use harness_explorer and harness_architect as two separate subagents in parallel.
+Explorer: inspect the harness entry points and cite the relevant files.
+Architect: inspect the task ownership protocol and return a small improvement plan
+in your response only. Both tasks are read-only and independent.
+Have the parent combine the two results. Do not modify files.
+```
 
-## You're done
+Check that two native subagent sessions start, each completes its assigned task, and the parent combines their results. Record the Codex client/version, effective configuration, discovered role names, observed overlap, returned evidence, and any errors. An instruction to run in parallel is not proof that the runtime did so.
 
-At this point you should have:
+For write-path verification, use a disposable project and explicitly assign separate temporary files to two workers. Verify both expected contents, unchanged sentinel files outside ownership, parent integration, and reviewer/QA results. Task packets and a completion checklist are in [multi-agent.md](multi-agent.md).
 
-- [x] A `.claude/agents/` directory with domain-specialized agents
-- [x] A `.claude/skills/` directory with their supporting skills
-- [x] One successful sample-task execution
-- [x] A working `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment
+If roles are missing, confirm the project root and trust settings, validate the files, then start a new thread. If subagent tools are unavailable or capacity is exhausted, have the parent complete the work sequentially and report the reduced execution mode.
 
-**Next reads:**
-- [`docs/experimental-dependency.md`](./experimental-dependency.md) — Why the flag, and what we'll do when it changes
-- [`revfactory/harness-100`](https://github.com/revfactory/harness-100) — Catalog of 100+ pre-built domain harnesses, if you'd rather clone than generate
-- [`revfactory/claude-code-harness`](https://github.com/revfactory/claude-code-harness) — The A/B test harness we used to measure +60% quality on 15 tasks
+## Repository checks
 
-**If you hit something this guide didn't cover:** open an issue with the `quickstart-gap` label and include: (a) which step failed, (b) `claude --version`, (c) the exact error message. The SLA for quickstart-gap issues is **48 hours** to first response (see `CONTRIBUTING.md`).
+From this repository root:
+
+```bash
+python3 scripts/validate.py --project .
+python3 -m unittest discover -s tests -v
+```
+
+Report static validation, automated script checks, and live runtime observations separately. Do not infer a live runtime pass from the commands above.

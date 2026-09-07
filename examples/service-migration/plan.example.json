@@ -1,0 +1,164 @@
+{
+  "objective": "실제 소스를 추가한 뒤 프로필 응답 생산자와 소비자를 마이그레이션한다",
+  "tasks": [
+    {
+      "id": "01",
+      "role": "service_contract_mapper",
+      "dependencies": [],
+      "ownership": [],
+      "acceptance": [
+        "실제 API 직렬화와 오류 응답을 파일 근거로 설명한다"
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "required": true,
+      "inputs": [
+        "docs/profile-contract.md"
+      ],
+      "context": {
+        "decisions": [
+          "docs/profile-contract.md에 메인이 확정한 목표 응답·오류 형식을 따른다",
+          "제품 수정은 migrator가 맡고 리뷰·QA는 검증만 수행한다"
+        ],
+        "skill_paths": [
+          ".agents/skills/service-migration/SKILL.md"
+        ]
+      }
+    },
+    {
+      "id": "02",
+      "role": "service_contract_mapper",
+      "dependencies": [],
+      "ownership": [],
+      "acceptance": [
+        "실제 클라이언트 파서·타입·호출부를 파일 근거로 대응시킨다"
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "required": true,
+      "inputs": [
+        "docs/profile-contract.md"
+      ],
+      "context": {
+        "decisions": [
+          "docs/profile-contract.md에 메인이 확정한 목표 응답·오류 형식을 따른다",
+          "제품 수정은 migrator가 맡고 리뷰·QA는 검증만 수행한다"
+        ],
+        "skill_paths": [
+          ".agents/skills/service-migration/SKILL.md"
+        ]
+      }
+    },
+    {
+      "id": "03",
+      "role": "service_contract_migrator",
+      "dependencies": [
+        "01",
+        "02"
+      ],
+      "ownership": [
+        "src/api/profile.ts"
+      ],
+      "acceptance": [
+        "메인이 확정한 응답 계약으로 실제 생산자를 변경하고 관련 검사를 수행한다"
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "required": true,
+      "inputs": [
+        "docs/profile-contract.md"
+      ],
+      "context": {
+        "decisions": [
+          "docs/profile-contract.md에 메인이 확정한 목표 응답·오류 형식을 따른다",
+          "제품 수정은 migrator가 맡고 리뷰·QA는 검증만 수행한다"
+        ],
+        "skill_paths": [
+          ".agents/skills/service-migration/SKILL.md"
+        ]
+      }
+    },
+    {
+      "id": "04",
+      "role": "service_contract_migrator",
+      "dependencies": [
+        "03"
+      ],
+      "ownership": [
+        "src/client/profile.ts"
+      ],
+      "acceptance": [
+        "검증된 생산자의 응답을 소비하고 누락·오류 처리를 유지한다"
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "required": true,
+      "inputs": [
+        "docs/profile-contract.md"
+      ],
+      "context": {
+        "decisions": [
+          "docs/profile-contract.md에 메인이 확정한 목표 응답·오류 형식을 따른다",
+          "제품 수정은 migrator가 맡고 리뷰·QA는 검증만 수행한다"
+        ],
+        "skill_paths": [
+          ".agents/skills/service-migration/SKILL.md"
+        ]
+      }
+    },
+    {
+      "id": "05",
+      "role": "default",
+      "dependencies": [
+        "04"
+      ],
+      "ownership": [],
+      "acceptance": [
+        "제품 파일을 수정하지 않고 양쪽 계약과 회귀 위험을 독립 검토한다"
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "required": true,
+      "inputs": [
+        "docs/profile-contract.md"
+      ],
+      "context": {
+        "decisions": [
+          "docs/profile-contract.md에 메인이 확정한 목표 응답·오류 형식을 따른다",
+          "제품 수정은 migrator가 맡고 리뷰·QA는 검증만 수행한다"
+        ],
+        "skill_paths": [
+          ".agents/skills/service-migration/SKILL.md"
+        ]
+      }
+    },
+    {
+      "id": "06",
+      "role": "default",
+      "dependencies": [
+        "05"
+      ],
+      "ownership": [
+        ".harness/runs/service-v1/task-06/"
+      ],
+      "acceptance": [
+        "실제 관련 테스트를 실행하고 통과·실패·미실행 및 로그를 구분한다"
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "required": true,
+      "inputs": [
+        "docs/profile-contract.md"
+      ],
+      "context": {
+        "decisions": [
+          "docs/profile-contract.md에 메인이 확정한 목표 응답·오류 형식을 따른다",
+          "제품 수정은 migrator가 맡고 리뷰·QA는 검증만 수행한다"
+        ],
+        "skill_paths": [
+          ".agents/skills/service-migration/SKILL.md"
+        ]
+      }
+    }
+  ]
+}
