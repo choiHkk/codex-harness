@@ -56,7 +56,23 @@ The Codex plugin manifest packages the skill. Installing it makes that workflow 
 
 Sandbox declarations express the intended agent policy. Parent session runtime overrides and platform restrictions can affect the effective sandbox. Ownership instructions do not create per-file access controls. Check the active client's effective policy when verifying write boundaries. [OpenAI subagent reference](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
-If custom roles are absent, verify the working project root, trust/configuration loading, and TOML validity, then start a new thread. If native subagent tools are unavailable, the parent can still follow the workflow sequentially; it should report that execution mode explicitly.
+If custom roles are absent, verify the working project root, trust/configuration loading, and TOML validity, then start a new thread. An available built-in role can cover a suitable task with explicit instructions; report that substitution. Role discovery and exposed subagent tools do not establish that native spawning works in the current session.
+
+## Native spawn preflight and ephemeral sessions
+
+Before wider fan-out, use the first planned agent as a compatibility check:
+
+1. Inspect the active native tool schema, available roles, and actual capacity. If no native tool is exposed, proceed with the sequential fallback below.
+2. Spawn one agent with a standby-only instruction: wait for the refreshed task packet and do not read or write product files. Inspect the actual tool result before spawning more agents.
+3. Only when a real child ID is returned, register it with `run.py start` if using a run plan, then dispatch the refreshed packet through the actual follow-up tool. Reuse this child for its planned task and count it against capacity; no separate throwaway probe is needed.
+
+If the result contains `collab spawn failed: no thread with id`, stop further spawn attempts in that session. Preserve the full error and client/version as evidence. Retrying each role or switching to a built-in role does not address this missing-thread failure. Without a returned child ID, do not call `run.py start` or invent an agent ID. Capacity errors are a separate case: inspect actual session states and use supported lifecycle controls before a justified retry.
+
+`codex exec --ephemeral` avoids persisting session rollout files to disk. This is the documented flag meaning and was confirmed by installed **Codex CLI 0.154.0** help on **2026-09-14**; it is not a guarantee of native subagent compatibility. The [CLI reference](https://learn.chatgpt.com/docs/developer-commands?surface=cli) and [subagent reference](https://learn.chatgpt.com/docs/agent-configuration/subagents) do not establish that combination's compatibility. Known ephemeral mode is a reason to check the first spawn carefully; the Python helpers do not detect the parent CLI mode.
+
+The [verification record](verification.md) contains the historical **0.153.4** ephemeral failure and ordinary-session success, plus a bounded **0.154.0** ephemeral probe that reported success without independent spawn metadata. These observations neither establish universal incompatibility nor identify a fixed version.
+
+If native spawning is unavailable or fails, the parent can complete suitable substantive work sequentially in the existing session and report that mode. Preserve the user's persistence preference; do not silently restart without `--ephemeral`. An ordinary invocation is an option when persistent sessions are acceptable; see the [quickstart](quickstart.md#2-open-the-project-in-a-new-session). Keep native tasks that never started pending and record parent work separately, without synthetic IDs or native results. Native-only smoke checks remain `failed` for an observed failure or `not_run` for unexecuted checks; sequential work does not make that smoke pass.
 
 ## Local helpers and native runtime actions
 
@@ -70,4 +86,4 @@ Read-only agents remain read-only and ask the parent to record important message
 
 Keep the output of `python3 scripts/validate.py --project .` and the automated test suite separate from a live smoke result. For runtime reports, include client/version, project root, effective subagent settings, discovered roles, observed concurrent sessions, and the parent integration result. Follow the [quickstart live smoke procedure](quickstart.md#live-multi-agent-smoke-test).
 
-The [verification record](verification.md) documents a successful two-custom-agent read workflow on Codex CLI 0.153.4 and a failed ephemeral-session probe. There is no maintained cross-version matrix or performance benchmark. Static validation alone still does not imply a live runtime pass.
+The [verification record](verification.md) distinguishes historical live results from the more limited current probe. There is no maintained cross-version matrix or performance benchmark. Static validation alone still does not imply a live runtime pass.
