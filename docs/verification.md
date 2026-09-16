@@ -1,5 +1,47 @@
 # Verification record
 
+## Issue #1 compatibility recheck — 2026-09-14
+
+On macOS, installed **codex-cli 0.154.0** help still describes `--ephemeral`
+as disabling session-file persistence. A bounded read-only probe ran with
+`codex exec --ephemeral --json --sandbox read-only -C <checkout>` and inherited
+model/reasoning settings. It requested one standby `harness_explorer`, with
+no product reads, writes, or recursive delegation and no retry on spawn failure.
+
+The CLI exited **0** and reported child ID `/root/compatibility_probe` and its
+`READY` response. The captured JSONL contains a completed wait event and that
+final report, but no spawn metadata independently confirming the dispatch.
+This is a **reported success**, not proof of a fixed CLI version, native
+parallelism, or a complete Harness workflow. The earlier 0.153.4 failure below
+remains a separate observation. Use the actual first-spawn check described in
+[compatibility](compatibility.md) for each session.
+
+The same installed CLI also completed the updated ordinary-session regression:
+
+```bash
+python3 scripts/live_smoke.py run \
+  --target _workspace/live-tests/issue-1-20260914 \
+  --baseline-file /tmp/codex-harness-issue-1-20260914-baseline.json --timeout 900
+```
+
+The runner exited **0** using its caller-held protected-file baseline. It
+verified rejection of the deliberately blocked first run, preservation of
+that run and alpha's output, reuse of alpha, rerun of beta and QA, and both
+final tests passing. Native tool metadata separately confirmed that alpha's
+child ID returned before beta was spawned, with exactly two `harness_worker`
+children and one `harness_qa`; the first child was reused without an extra
+probe. The local verifier still labels transport records as reported; this
+recheck does not independently audit all message contents or prove behavior
+under the original missing-thread failure. Local evidence is retained under
+the ignored fixture's `_workspace/` and `.harness/runs/issue-1-inputs/`.
+
+For this change, independent offline QA passed **94 tests**, root and example
+structural validation, `git diff --check`, and the changed documentation's
+local links, anchors, and shell examples. These checks remain separate from
+native execution evidence.
+
+## 2026-09-07 baseline
+
 Checked **2026-09-07 (Asia/Seoul)** against upstream revision
 `cceac68ea1d0ad198ef4b7b906cd238375836387`, using Python **3.13.7** and
 **codex-cli 0.153.4** on macOS.

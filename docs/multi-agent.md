@@ -64,13 +64,13 @@ Read scope can overlap. Write ownership must be disjoint while tasks execute con
 
 1. Audit the existing harness and clarify only information needed to proceed.
 2. Establish a compact dependency graph and interface contracts.
-3. Spawn independent tasks up to the available subagent capacity while continuing useful parent work.
+3. Check native compatibility with the first planned standby agent and inspect its actual spawn result before wider fan-out. With a returned child ID, register and reuse that agent, then spawn further independent tasks within actual capacity while continuing useful parent work.
 4. Reuse an agent for related follow-ups with refreshed inputs, decisions, and skill paths. Register the actual native agent ID and its observed lifecycle separately from task status. Close unnecessary sessions with the actual runtime tool and record the observed outcome.
 5. Inspect each result, reconcile interfaces, and integrate before dispatching dependent tasks.
 6. Review and test the integrated change. Route confirmed defects back to the owning worker, then recheck the affected behavior.
 7. Report completed work, actual evidence, and remaining limitations.
 
-The project requests `max_concurrent_threads_per_session = 3` under `[agents]`; these are subagent threads coordinated by the parent session. The effective runtime can impose a lower limit. If a spawn fails due to capacity, inspect actual session states, collect pending results, and use the runtime's supported lifecycle tools before retrying. Waiting or marking a local task complete does not itself release native capacity. If tools are unavailable, use sequential parent execution and report that limitation. Do not abandon required work or manufacture tool names.
+The project requests `max_concurrent_threads_per_session = 3` under `[agents]`; these are subagent threads coordinated by the parent session. The effective runtime can impose a lower limit. If a spawn fails due to capacity, inspect actual session states, collect pending results, and use the runtime's supported lifecycle tools before retrying. Waiting or marking a local task complete does not itself release native capacity. Exposed tools and discovered roles do not guarantee successful spawning. For `collab spawn failed: no thread with id`, stop further spawn attempts in that session, including retries with different roles. Follow the [compatibility preflight](compatibility.md#native-spawn-preflight-and-ephemeral-sessions). Do not abandon required substantive work or manufacture tool names.
 
 Five role definitions do not mean five simultaneous agents. Spawn only concrete tasks that gain something from independent execution. Workers do not spawn their own agents. Hierarchical decomposition stays in the parent's dependency graph, with leaf tasks scheduled within the same bounded pool.
 
@@ -80,7 +80,7 @@ Use the [runtime guide](../skills/harness/references/runtime-guide.md) to initia
 
 Independent tasks receive small, self-contained packets. Related follow-ups reread the changed packet, files, and decisions. An independent reviewer can use fresh context when supported; do not assume a full conversation fork or a particular fork flag exists.
 
-The parent creates new native agents with a standby-only instruction, registers their actual IDs through `start` in `agents.json`, then dispatches the refreshed packet through the actual follow-up tool. A failed local registration prevents task dispatch. `run.py result` records task evidence but does not mark the native agent idle. Confirm actual idleness or a stop acknowledgment before reassigning write ownership; `stop_requested` alone is insufficient. Use the native follow-up tool to resume work and the native lifecycle tool to stop or close a session. The local CLI records observations; it does not perform those native actions.
+The parent creates new native agents with a standby-only instruction to wait for the refreshed packet without reading or writing product files, registers their actual IDs through `start` in `agents.json`, then dispatches the packet through the actual follow-up tool. Without a returned native child ID, do not call `run.py start`; a synthetic ID or the parent's ID cannot stand in for a child. A failed local registration prevents task dispatch. `run.py result` records task evidence but does not mark the native agent idle. Confirm actual idleness or a stop acknowledgment before reassigning write ownership; `stop_requested` alone is insufficient. Use the native follow-up tool to resume work and the native lifecycle tool to stop or close a session. The local CLI records observations; it does not perform those native actions.
 
 `run.py resume` creates a new run, preserves prior records, and invalidates changed inputs/results plus affected descendants. `validate.py --project . --run ID --complete` checks required result evidence, artifacts, and freshness before the parent reports completion. Neither operation proves native execution.
 
@@ -95,6 +95,8 @@ Events append under `_workspace/communications/<run-id>.jsonl` through the helpe
 ## Failure handling
 
 A blocked child returns the exact dependency or failure and any useful partial findings. The parent resolves the dependency, narrows the task, or finishes it locally. Retry only when the input or environment has changed enough to justify another attempt. A child saying “complete” does not satisfy acceptance criteria without evidence.
+
+If native tools are unavailable or the first spawn fails, the parent can complete suitable substantive work sequentially in the current session and report the limitation. Keep native tasks that never started pending and record parent work separately; do not use invented IDs or submit parent work as native child results to make completion validation pass. Required native-only checks remain `failed` or `not_run` according to the evidence, so this fallback cannot pass a native smoke test. Preserve an explicit ephemeral-session preference; ordinary persistent execution is an option only when that persistence is acceptable. The [compatibility guide](compatibility.md#native-spawn-preflight-and-ephemeral-sessions) separates historical ephemeral failures from current evidence.
 
 When concurrent edits collide, stop assigning overlapping writes, inspect the combined diff, and preserve both contributors' intent. The parent owns reconciliation. Do not reset shared files to a prior version or overwrite the workspace to recover one task's result.
 

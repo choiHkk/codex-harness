@@ -27,6 +27,14 @@ Open the project you want to configure, rather than the downloaded marketplace d
 codex -C /absolute/path/to/project
 ```
 
+For a non-interactive ordinary session:
+
+```bash
+codex exec -C /absolute/path/to/project '$harness Build a harness for this project. Use subagents for independent tasks after checking the first native spawn.'
+```
+
+These examples keep your configured model and permissions. Single quotes preserve the literal `$harness` prompt in the shell. If you chose `--ephemeral` to avoid persistent session files, keep that choice and follow the [native spawn preflight](compatibility.md#native-spawn-preflight-and-ephemeral-sessions); do not silently switch to an ordinary session.
+
 Start a new session after installation, then send:
 
 ```text
@@ -75,6 +83,7 @@ If you already have this checkout, run only the last two commands from its root.
 - **Marketplace or plugin not found:** run `codex plugin marketplace list` and `codex plugin list --marketplace codex-harness --available --json`. Confirm the source includes `.agents/plugins/marketplace.json`; use the local-checkout route for unpublished changes.
 - **`harness` is missing:** confirm the plugin is installed and enabled, then start a new session in the target project. In the desktop app, use `@` to select the plugin or bundled skill. [Official plugin usage](https://learn.chatgpt.com/docs/plugins).
 - **`.agents/skills/harness/scripts/...` is missing:** those project-local paths come from the optional project installer. Ask the plugin to use its installed helper paths, or install the project scaffold below.
+- **`collab spawn failed: no thread with id`:** stop native fan-out and per-role retries in that session. Record the error and CLI version; no returned child ID means no `run.py start`. Follow the [preflight and fallback guidance](compatibility.md#native-spawn-preflight-and-ephemeral-sessions), preserving any explicit `--ephemeral` preference.
 
 ## Use this checkout
 
@@ -133,7 +142,9 @@ python3 .agents/skills/harness/scripts/run.py --project . ready --run project-v1
 python3 .agents/skills/harness/scripts/run.py --project . status --run project-v1
 ```
 
-The parent first creates a native agent with a standby-only instruction, uses its real ID for `start`, then sends the refreshed packet through the actual follow-up tool. It registers actual results with `result`, and separately records confirmed session idleness or termination with `agent`. Important questions, answers, findings, and handoffs are explicitly recorded under `_workspace/communications/`; native delivery remains a separate tool call. Read-only roles ask the parent to log and route messages.
+The parent first creates one native agent with a standby-only instruction and inspects the returned result before wider fan-out. Only a successful spawn with a real child ID permits `start`, followed by delivery of the refreshed packet through the actual follow-up tool. Reuse that agent for its planned task within actual capacity. A missing-thread error stops retries; leave unstarted native tasks pending and record sequential parent work separately. See the [preflight](compatibility.md#native-spawn-preflight-and-ephemeral-sessions).
+
+The parent registers actual results with `result`, and separately records confirmed session idleness or termination with `agent`. Important questions, answers, findings, and handoffs are explicitly recorded under `_workspace/communications/`; native delivery remains a separate tool call. Read-only roles ask the parent to log and route messages.
 
 ```bash
 python3 .agents/skills/harness/scripts/communication.py --project . --run project-v1 view \
@@ -145,21 +156,28 @@ A later input change can start a new run through `run.py resume --run project-v1
 
 ## Live multi-agent smoke test
 
-Static validation cannot establish runtime discovery or parallel execution. In a new trusted local Codex session, ask:
+Static validation and exposed tools cannot establish native spawning or parallel execution. In a new trusted local Codex session, ask:
 
 ```text
-Use harness_explorer and harness_architect as two separate subagents in parallel.
+First spawn one harness_explorer with a standby-only instruction: wait for the
+task packet and do not read or write product files. Inspect its actual result
+before starting another agent. If no child ID is returned, report the error and
+stop this native smoke. For "collab spawn failed: no thread with id", do not retry
+other roles in this session.
+On success, reuse that child for the Explorer task below, then start a separate
+harness_architect for the Architect task within actual capacity. Dispatch both
+independent tasks before waiting for their results.
 Explorer: inspect the harness entry points and cite the relevant files.
 Architect: inspect the task ownership protocol and return a small improvement plan
 in your response only. Both tasks are read-only and independent.
 Have the parent combine the two results. Do not modify files.
 ```
 
-Check that two native subagent sessions start, each completes its assigned task, and the parent combines their results. Record the Codex client/version, effective configuration, discovered role names, observed overlap, returned evidence, and any errors. An instruction to run in parallel is not proof that the runtime did so.
+Check that the first spawn returns a real child ID, two native subagent sessions start, each completes its assigned task, and the parent combines their results. Record the Codex client/version, session mode if known, effective configuration, discovered role names, observed overlap, returned evidence, and any errors. An instruction to run in parallel is not proof that the runtime did so.
 
 For write-path verification, use a disposable project and explicitly assign separate temporary files to two workers. Verify both expected contents, unchanged sentinel files outside ownership, parent integration, and reviewer/QA results. Task packets and a completion checklist are in [multi-agent.md](multi-agent.md).
 
-If roles are missing, confirm the project root and trust settings, validate the files, then start a new thread. If subagent tools are unavailable or capacity is exhausted, have the parent complete the work sequentially and report the reduced execution mode.
+If roles are missing, confirm the project root and trust settings, validate the files, then start a new thread. Distinguish missing roles, unavailable tools, capacity limits, and the missing-thread error using the [compatibility guide](compatibility.md#native-spawn-preflight-and-ephemeral-sessions). The parent can perform suitable substantive work sequentially in the existing session, preserving the user's persistence preference. Native-only checks stay `failed` or `not_run` as observed; sequential fallback is not a successful native smoke.
 
 ## Repository checks
 
