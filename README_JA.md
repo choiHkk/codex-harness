@@ -1,3 +1,16 @@
+<p align="center">
+  <img src="codex-harness.png" alt="コーディングツールを装備した Codex Harness のロボットマスコット" width="800">
+</p>
+
+<p align="center">
+  <a href=".codex-plugin/plugin.json"><img src="https://img.shields.io/badge/Version-0.1.0-brightgreen.svg" alt="バージョン 0.1.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="Apache 2.0 ライセンス"></a>
+  <img src="https://img.shields.io/badge/Codex-Plugin-purple.svg" alt="Codex プラグイン">
+  <img src="https://img.shields.io/badge/Patterns-6_Architectures-orange.svg" alt="6つのアーキテクチャパターン">
+  <img src="https://img.shields.io/badge/Mode-Subagents-green.svg" alt="Codex サブエージェント">
+  <a href="https://github.com/revfactory/codex-harness/stargazers"><img src="https://img.shields.io/github/stars/revfactory/codex-harness?style=social" alt="GitHub スター"></a>
+</p>
+
 # Harness for Codex
 
 [English](README.md) | [한국어](README_KO.md) | **日本語**
