@@ -10,10 +10,16 @@ This is an independent migration of [revfactory/harness](https://github.com/revf
 
 Run these two commands in your terminal. You do not need to clone this repository or run the Python installer:
 
+Add Marketplace  
 ```bash
 codex plugin marketplace add https://github.com/revfactory/codex-harness.git
+```
+
+Add Plugin  
+```bash
 codex plugin add codex-harness@codex-harness
 ```
+
 
 Open **your target project in a new Codex session**, then send:
 
