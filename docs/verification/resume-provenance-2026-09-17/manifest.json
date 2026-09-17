@@ -1,0 +1,16 @@
+{
+  "baseline_commit": "79b82281d305c89181fbb216499d5f1e962c14ed",
+  "python": "3.12.14",
+  "platform": "Linux",
+  "tests": {
+    "baseline": 94,
+    "corrected": 97,
+    "new_methods": 3,
+    "cross_run_unresolved": 2
+  },
+  "sha256": {
+    "skills/harness/scripts/run_state.py": "502b82539fedd23eff95abcddd50afb9e77fa72ec865074c85be7fd7a128074b",
+    "tests/test_resume_adversarial.py": "e68d9e2f7a527807c8b498ca4ffb779d0535a1bc94d567bc5a0de28e8963c853",
+    "scripts/reproduce_resume.py": "72129a786edc5864ff967b464708570e9e5469665ce1ee0f510c56efb2758720"
+  }
+}

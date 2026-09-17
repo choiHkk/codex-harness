@@ -1,0 +1,5 @@
+Command: python3 scripts/validate.py --project .
+Working directory: /workspace/scratch/3c97394f8dce/codex-harness
+Exit status: 0
+
+PASS: 5 agent(s), 1 skill(s), 0 error(s). Static validation only.

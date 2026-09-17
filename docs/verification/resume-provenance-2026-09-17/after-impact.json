@@ -1,0 +1,193 @@
+{
+  "repo": "/workspace/scratch/3c97394f8dce/codex-harness",
+  "scope": "Normal local CLI transitions; native agent execution is not tested.",
+  "first_resume_reused": [
+    "export"
+  ],
+  "second_resume_pending": [
+    "export"
+  ],
+  "assigned_write_path": ".harness/runs/rerun/task-export/outputs/report.txt",
+  "expected_write_path": ".harness/runs/rerun/task-export/outputs/report.txt",
+  "original_output_before": "Accepted version one",
+  "original_output_after": "Accepted version one",
+  "original_output_unchanged": true,
+  "completion_returncode": 0,
+  "completion_stdout": "PASS: run rerun, 0 completion error(s). Recorded evidence only.\n",
+  "commands": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "init",
+        "--run-id",
+        "current",
+        "--plan-file",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/plan-template.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"current\",\n  \"run_dir\": \"/tmp/resume-provenance-reproducer-ykxl_g8r/project/.harness/runs/current\",\n  \"tasks\": 1\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "start",
+        "--run",
+        "current",
+        "--task",
+        "export",
+        "--agent-id",
+        "fixture-native-id"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"current\",\n  \"task_id\": \"export\",\n  \"agent_id\": \"fixture-native-id\",\n  \"status\": \"running\",\n  \"attempts\": 1\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "result",
+        "--run",
+        "current",
+        "--task",
+        "export",
+        "--result-file",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/current-result.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"current\",\n  \"task_id\": \"export\",\n  \"status\": \"completed\",\n  \"agent_state\": \"running\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "agent",
+        "--run",
+        "current",
+        "--agent-id",
+        "fixture-native-id",
+        "--state",
+        "closed",
+        "--evidence",
+        "CLI fixture is quiescent; no native agent execution is claimed."
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"current\",\n  \"agent_id\": \"fixture-native-id\",\n  \"state\": \"closed\",\n  \"task_id\": \"export\",\n  \"evidence\": \"CLI fixture is quiescent; no native agent execution is claimed.\",\n  \"updated_at\": \"2026-09-17T14:57:52.269229+00:00\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "resume",
+        "--run",
+        "current",
+        "--new-run",
+        "reused"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"reused\",\n  \"run_dir\": \"/tmp/resume-provenance-reproducer-ykxl_g8r/project/.harness/runs/reused\",\n  \"tasks\": 1,\n  \"previous_run_id\": \"current\",\n  \"reused\": [\n    \"export\"\n  ],\n  \"pending\": {}\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "resume",
+        "--run",
+        "reused",
+        "--new-run",
+        "rerun"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"rerun\",\n  \"run_dir\": \"/tmp/resume-provenance-reproducer-ykxl_g8r/project/.harness/runs/rerun\",\n  \"tasks\": 1,\n  \"previous_run_id\": \"reused\",\n  \"reused\": [],\n  \"pending\": {\n    \"export\": [\n      \"Task input snapshot is stale: spec.txt. Refresh the task and recheck its result.\",\n      \"Create a new run with resume to refresh the immutable context.\",\n      \"Task input snapshot is stale: spec.txt. Refresh the task and recheck its result.\"\n    ]\n  }\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "start",
+        "--run",
+        "rerun",
+        "--task",
+        "export",
+        "--agent-id",
+        "fixture-native-id"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"rerun\",\n  \"task_id\": \"export\",\n  \"agent_id\": \"fixture-native-id\",\n  \"status\": \"running\",\n  \"attempts\": 1\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "result",
+        "--run",
+        "rerun",
+        "--task",
+        "export",
+        "--result-file",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/rerun-result.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"rerun\",\n  \"task_id\": \"export\",\n  \"status\": \"completed\",\n  \"agent_state\": \"running\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "agent",
+        "--run",
+        "rerun",
+        "--agent-id",
+        "fixture-native-id",
+        "--state",
+        "closed",
+        "--evidence",
+        "CLI fixture is quiescent; no native agent execution is claimed."
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"rerun\",\n  \"agent_id\": \"fixture-native-id\",\n  \"state\": \"closed\",\n  \"task_id\": \"export\",\n  \"evidence\": \"CLI fixture is quiescent; no native agent execution is claimed.\",\n  \"updated_at\": \"2026-09-17T14:57:52.605540+00:00\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/validate.py",
+        "--project",
+        "/tmp/resume-provenance-reproducer-ykxl_g8r/project",
+        "--run",
+        "rerun",
+        "--complete"
+      ],
+      "returncode": 0,
+      "stdout": "PASS: run rerun, 0 completion error(s). Recorded evidence only.\n",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+test_other_run_cannot_dispatch_overlapping_active_writer (__main__.CrossRunLifecycleTests.test_other_run_cannot_dispatch_overlapping_active_writer)
+A different run ID must not bypass an existing file ownership hold. ... FAIL
+test_resume_does_not_release_unclosed_native_slot (__main__.CrossRunLifecycleTests.test_resume_does_not_release_unclosed_native_slot)
+Idle is reusable, but changing run IDs does not close a thread. ... FAIL
+
+======================================================================
+FAIL: test_other_run_cannot_dispatch_overlapping_active_writer (__main__.CrossRunLifecycleTests.test_other_run_cannot_dispatch_overlapping_active_writer)
+A different run ID must not bypass an existing file ownership hold.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/3c97394f8dce/cross_run_limitations.py", line 38, in test_other_run_cannot_dispatch_overlapping_active_writer
+    rejected = self.start(
+               ^^^^^^^^^^^
+  File "/workspace/scratch/3c97394f8dce/codex-harness/tests/test_run_state.py", line 27, in start
+    return self.cli("run.py", "start", "--run", run_id, "--task", task_id, "--agent-id", agent_id, success=success)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/3c97394f8dce/codex-harness/tests/test_run_checks.py", line 110, in cli
+    self.assertNotEqual(result.returncode, 0, detail)
+AssertionError: 0 == 0 : ['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py', '--project', '/tmp/harness-run-tests-oui1dzn9/project', 'start', '--run', 'parallel', '--task', '01', '--agent-id', 'observed-agent-02']
+stdout: {
+  "run_id": "parallel",
+  "task_id": "01",
+  "agent_id": "observed-agent-02",
+  "status": "running",
+  "attempts": 1
+}
+
+stderr: 
+
+======================================================================
+FAIL: test_resume_does_not_release_unclosed_native_slot (__main__.CrossRunLifecycleTests.test_resume_does_not_release_unclosed_native_slot)
+Idle is reusable, but changing run IDs does not close a thread.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/3c97394f8dce/cross_run_limitations.py", line 56, in test_resume_does_not_release_unclosed_native_slot
+    rejected = self.start(
+               ^^^^^^^^^^^
+  File "/workspace/scratch/3c97394f8dce/codex-harness/tests/test_run_state.py", line 27, in start
+    return self.cli("run.py", "start", "--run", run_id, "--task", task_id, "--agent-id", agent_id, success=success)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/3c97394f8dce/codex-harness/tests/test_run_checks.py", line 110, in cli
+    self.assertNotEqual(result.returncode, 0, detail)
+AssertionError: 0 == 0 : ['/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3', '/workspace/scratch/3c97394f8dce/codex-harness/skills/harness/scripts/run.py', '--project', '/tmp/harness-run-tests-h4m3dkpk/project', 'start', '--run', 'resumed', '--task', '01', '--agent-id', 'observed-agent-02']
+stdout: {
+  "run_id": "resumed",
+  "task_id": "01",
+  "agent_id": "observed-agent-02",
+  "status": "running",
+  "attempts": 1
+}
+
+stderr: 
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.733s
+
+FAILED (failures=2)
+
+PROCESS_EXIT_CODE=1
