@@ -37,10 +37,12 @@ codex plugin add codex-harness@codex-harness
 Open **your target project in a new Codex session**, then send:
 
 ```text
-$harness Build a harness for this project. Use subagents in parallel for independent tasks.
+$harness Write a short blog post about organizing a new project and save it to article.md.
 ```
 
-The plugin provides the `harness` skill, references, and helper scripts. It can inspect your project and create suitable agents and skills when asked. To install the predefined five-agent team and project configuration, use the [project installer](#install-into-another-project-optional).
+Explicitly invoking `$harness` (or `$codex-harness:harness`) builds or updates a durable harness in the **current target project by default**, even when the rest of the request is an ordinary content task. It then performs that task. An explicit read-only request or instruction not to build a harness takes precedence. Agent definitions live under the target project's `.codex/agents/*.toml`; reusable skills live under `.agents/skills/`. The harness adds an `AGENTS.md` pointer, project configuration, and run records as appropriate. When Codex is started in the target project, native agents work there rather than in the plugin cache. Plugin installation alone creates no project files. The optional [project installer](#install-into-another-project-optional) supplies the predefined five-role team; invocation chooses roles for the actual project.
+
+Start Codex in that project (`codex -C /absolute/path/to/project`) before using its agents: native spawn has no `cwd` parameter and inherits the parent project's session directory. If the current session started elsewhere, bootstrap files can be written in the target with an explicit workdir, but start a fresh session in the target before spawning agents. See [quickstart troubleshooting](docs/quickstart.md#troubleshooting) for protected-directory write failures.
 
 The command syntax above was checked against Codex CLI **0.153.4**. After adding the marketplace, you can also use `/plugins` in the CLI to select **Codex Harness → Harness for Codex → Install**, then start a new session. See [quickstart](docs/quickstart.md#install-as-a-plugin-recommended) for desktop installation, a local-checkout option, and troubleshooting. [Official plugin guide](https://learn.chatgpt.com/docs/plugins).
 
@@ -77,9 +79,9 @@ python3 scripts/install.py --target /absolute/path/to/project
 python3 scripts/validate.py --project /absolute/path/to/project
 ```
 
-The installer copies the canonical `harness` skill and five seed agents, and merges supported project configuration forms and the `AGENTS.md` pointer while preserving existing content. Review any reported conflicts. An inline `agents = { ... }` table that needs missing defaults may require expansion to `[agents]`; the installer reports this before writing files. It does not change personal Codex configuration. Open the target in a new trusted local Codex session after installation.
+The installer copies the canonical `harness` skill and five seed agents, and merges supported project configuration forms and the `AGENTS.md` pointer while preserving existing content. This predefined scaffold is optional; explicit skill invocation builds a project-specific harness without it. Review any reported conflicts. An inline `agents = { ... }` table that needs missing defaults may require expansion to `[agents]`; the installer reports this before writing files. It does not change personal Codex configuration. Open the target in a new trusted local Codex session after installation.
 
-The [Codex plugin manifest](.codex-plugin/plugin.json) packages the skill from the standard `skills/` directory. The [repository marketplace](.agents/plugins/marketplace.json) makes it installable as `codex-harness@codex-harness`. Plugin installation alone does **not** create project agent TOMLs, project configuration, or an `AGENTS.md` pointer; the project installer supplies those files.
+The [Codex plugin manifest](.codex-plugin/plugin.json) packages the skill from the standard `skills/` directory. The [repository marketplace](.agents/plugins/marketplace.json) makes it installable as `codex-harness@codex-harness`. Plugin installation alone does **not** create project files; explicit invocation builds the project-specific harness, while the project installer supplies the optional predefined scaffold.
 
 ## How the team works
 
@@ -126,7 +128,7 @@ The six design patterns remain available: pipeline, fan-out/fan-in, expert pool,
 
 ## Run state and agent communication
 
-The shell examples below use paths created by the optional project installer. With only the plugin installed, ask `$harness` to use the helpers from its installed skill directory.
+The shell examples below use paths created by explicit `$harness` invocation or the optional project installer. Before invocation, a plugin-only installation keeps those helpers in the installed skill directory.
 
 The parent initializes a run from an actual project plan, records native agent IDs, and gives each child a refreshed packet with the project root, stable input fingerprints, decisions, skills, ownership, dependencies, and acceptance criteria. Related follow-ups can reuse the same agent; independent reviews can use fresh context when the runtime supports it. Models and the three-subagent concurrency setting stay inherited/configured as above.
 

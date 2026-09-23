@@ -2,6 +2,7 @@
 
 ## Unreleased — Codex run coordination improvements
 
+- Made an explicit `$harness` invocation build or update a harness in the target project by default, with project-local agent definitions and project-root execution; explicit read-only or narrower requests still take precedence.
 - Added a first-standby native spawn preflight, missing-thread diagnostics that stop per-role retries, and sequential fallback guidance that preserves persistence preferences and keeps native-only failures explicit ([#1](https://github.com/revfactory/codex-harness/issues/1)).
 - Added v2 run state, refreshed task context with input fingerprints and decisions, native agent ID/lifecycle records, and selective resume invalidation.
 - Added completion checks for required result evidence, artifacts, and freshness, separate from native runtime observations.

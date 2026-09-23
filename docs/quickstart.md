@@ -35,19 +35,21 @@ codex exec -C /absolute/path/to/project '$harness Build a harness for this proje
 
 These examples keep your configured model and permissions. Single quotes preserve the literal `$harness` prompt in the shell. If you chose `--ephemeral` to avoid persistent session files, keep that choice and follow the [native spawn preflight](compatibility.md#native-spawn-preflight-and-ephemeral-sessions); do not silently switch to an ordinary session.
 
-Start a new session after installation, then send:
+Native spawn has no `cwd` parameter: a child inherits the parent project's session directory. If this session started outside the target, use an explicit workdir to bootstrap files in the target, then open a fresh session with `codex -C /absolute/path/to/project` before using project agents. Writing bootstrap files into the target does not move an existing native session there.
+
+Start a new session after installation, then send an explicit skill invocation. An ordinary task can follow it:
 
 ```text
-$harness Build a harness for this project. Use subagents in parallel for independent tasks.
+$harness Write a short blog post about organizing a new project and save it to article.md.
 ```
 
-Korean also works:
+The qualified name `$codex-harness:harness` works as well. Korean also works:
 
 ```text
-$harness 이 프로젝트에 맞는 하네스를 구성해줘. 독립 작업은 서브에이전트로 병렬 처리해줘.
+$harness 새 프로젝트의 자료를 정리하는 방법에 관한 짧은 블로그 글을 article.md에 저장해줘.
 ```
 
-Harness inspects the project's existing instructions, agents, and skills, then creates the needed project files. Start a new thread if newly created custom roles are not yet available.
+An explicit invocation builds or updates a durable harness in the current target project by default, then performs the accompanying task. An explicit read-only request or instruction not to build a harness takes precedence. Harness inspects existing instructions, agents, and skills, and writes suitable definitions under the target's `.codex/agents/*.toml` and `.agents/skills/`, plus an `AGENTS.md` pointer, project configuration, and run records as appropriate. When Codex is started in the target, native agents work there. Start a new thread **in that project** if newly created custom roles are not yet available.
 
 ### 3. Check the installation
 
@@ -59,10 +61,10 @@ Confirm that `codex-harness` is installed and enabled. You can also check it in 
 
 | Installation route | What it provides |
 | --- | --- |
-| Plugin | The `harness` skill, references, and helper scripts in Codex's plugin cache; project files are created when you ask Harness to configure a project. |
+| Plugin | The `harness` skill, references, and helper scripts in Codex's plugin cache; installation alone creates no project files. Explicit invocation builds the project harness by default. |
 | Project installer (optional) | Regular skill files in `.agents/skills/harness/`, five predefined agents in `.codex/agents/`, merged project configuration, and an `AGENTS.md` pointer. |
 
-Plugin installation does not itself copy the seed team or project settings. For the predefined team, follow [Install into another project](#install-into-another-project). The manual helper commands later in this guide assume that project installation; with the plugin alone, ask `$harness` to locate and use the helpers in its installed skill directory.
+Plugin installation does not itself copy the seed team or project settings. On invocation, Harness copies its skill bundle into the target project so subsequent local helper commands are available there. For the optional predefined team, follow [Install into another project](#install-into-another-project).
 
 ### Install from a local checkout
 
@@ -82,7 +84,9 @@ If you already have this checkout, run only the last two commands from its root.
 - **`plugin` or `add` is unrecognized:** use a Codex CLI version exposing the commands above; inspect `codex --version` and `codex plugin --help`. The command is `codex plugin add`, not `codex plugin install`.
 - **Marketplace or plugin not found:** run `codex plugin marketplace list` and `codex plugin list --marketplace codex-harness --available --json`. Confirm the source includes `.agents/plugins/marketplace.json`; use the local-checkout route for unpublished changes.
 - **`harness` is missing:** confirm the plugin is installed and enabled, then start a new session in the target project. In the desktop app, use `@` to select the plugin or bundled skill. [Official plugin usage](https://learn.chatgpt.com/docs/plugins).
-- **`.agents/skills/harness/scripts/...` is missing:** those project-local paths come from the optional project installer. Ask the plugin to use its installed helper paths, or install the project scaffold below.
+- **Agents run from the wrong project:** native spawn inherits the parent session directory and cannot set a separate `cwd`. Start Codex in the target with `codex -C /absolute/path/to/project`; if files were bootstrapped from another session, start a fresh target-project session before spawning.
+- **`Operation not permitted` writing target `.codex/agents/` or `.agents/skills/`:** this occurred in a `workspace-write` test. Report the permission error and incomplete bootstrap. Do not move definitions outside the target project or silently change permissions.
+- **`.agents/skills/harness/scripts/...` is missing:** plugin installation alone leaves the helpers in its cache. Invoke `$harness` to build the project-local harness, or use the optional project installer below.
 - **`collab spawn failed: no thread with id`:** stop native fan-out and per-role retries in that session. Record the error and CLI version; no returned child ID means no `run.py start`. Follow the [preflight and fallback guidance](compatibility.md#native-spawn-preflight-and-ephemeral-sessions), preserving any explicit `--ephemeral` preference.
 
 ## Use this checkout
@@ -117,7 +121,7 @@ Open the target directory in a new trusted local Codex session and use the same 
 
 ## Add a focused agent
 
-Usually, let `$harness` inspect the project and write suitable instructions. To create one manually, prepare an instruction file describing the narrow role, ownership boundary, expected evidence, and return format, then run from the installed project:
+Usually, let `$harness` inspect the project and write suitable instructions. To create one manually, prepare an instruction file describing the narrow role, ownership boundary, expected evidence, and return format, then run from the target project after invocation or optional project installation:
 
 ```bash
 python3 .agents/skills/harness/scripts/create_agent.py \
@@ -133,7 +137,7 @@ Start a new thread if Codex does not discover the new role. Models and reasoning
 
 ## Manage a run and its communication record
 
-After installing, ask `$harness` to inspect the actual project and prepare a plan with immutable inputs, accepted decisions, skill paths, dependencies, ownership, and acceptance criteria. Initialize and inspect it from the target project:
+After invocation or optional project installation, ask `$harness` to inspect the target project and prepare a plan with immutable inputs, accepted decisions, skill paths, dependencies, ownership, and acceptance criteria. Initialize and inspect it from that project:
 
 ```bash
 python3 .agents/skills/harness/scripts/run.py --project . init \
